@@ -44,127 +44,19 @@ Direct, no filter. Authority from experience. Frustration with "tutorial program
 
 ## Code Conventions (apply to ALL code written)
 
-These apply always — whether in pipeline or not. No exceptions.
+These apply always. Full examples in `~/.claude/skills/dev-pipeline/RULES.md`.
 
-### Declaración de funciones — siempre `const`, nunca `function`
-```ts
-// ❌
-function processUser(user: User) { ... }
-export default function MyComponent() { ... }
-
-// ✅
-const processUser = (user: User) => { ... }
-const MyComponent = () => { ... }
-export default MyComponent
-```
-
-### Props — tipado fuera del componente, siempre `IProps`
-```ts
-// ❌ — tipo inline, nombre genérico
-const Card = ({ title, onClick }: { title: string; onClick: () => void }) => { ... }
-
-// ✅ — interface fuera, prefijo I, importable
-interface ICardProps {
-  title: string
-  onClick: () => void
-  className?: string
-}
-
-const Card = ({ title, onClick, className }: ICardProps) => { ... }
-export type { ICardProps }
-```
-
-### Componentes — siempre reutilizables, nunca one-off
-- Props genéricas: no hardcodear valores que deberían venir como prop
-- Nombre describe QUÉ es, no DÓNDE se usa (`UserCard`, no `DashboardUserCard`)
-- Antes de crear: buscar si existe algo similar y extenderlo
-- Si un componente solo funciona en un contexto específico → extraer la lógica a un hook y dejar el componente genérico
-
-### Separación estricta de responsabilidades
-```
-components/
-  UserCard/
-    UserCard.tsx        ← solo JSX, cero lógica
-    UserCard.types.ts   ← IUserCardProps y otros tipos del componente
-    index.ts            ← re-export
-
-hooks/
-  useUsers.ts           ← lógica stateful, llamadas a servicios
-  useUserFilters.ts     ← lógica de filtrado/búsqueda
-
-utils/
-  user.utils.ts         ← funciones puras de transformación
-
-mappers/
-  user.mapper.ts        ← API response → dominio interno
-
-services/
-  user.service.ts       ← llamadas a API / Firestore / Supabase
-
-types/
-  user.types.ts         ← interfaces y types del dominio
-```
-
-**Regla**: si un componente tiene más de 2-3 líneas de lógica que no son JSX → extraer a hook o util.
-
-### `const` por defecto, `let` solo si es inevitable
-```ts
-// ❌
-let result = []
-for (let i = 0; i < items.length; i++) result.push(transform(items[i]))
-// ✅
-const result = items.map(transform)
-```
-
-### Sin `if/else` — early return y casos negativos primero
-```ts
-// ❌
-const process = (user: User | null) => {
-  if (user) {
-    if (user.active) {
-      return doSomething(user)
-    } else {
-      return null
-    }
-  } else {
-    return null
-  }
-}
-// ✅
-const process = (user: User | null) => {
-  if (!user) return null
-  if (!user.active) return null
-  return doSomething(user)
-}
-```
-
-### Lookup objects en vez de if/else chains o switch
-```ts
-// ❌
-if (role === 'admin') return AdminView
-else if (role === 'editor') return EditorView
-else return UserView
-// ✅
-const VIEW = { admin: AdminView, editor: EditorView, user: UserView } as const
-return VIEW[role] ?? VIEW.user
-```
-
-### TypeScript siempre estricto
-- Nunca `any` → usar `unknown` + type narrowing
-- `interface` (con prefijo `I`) para contratos de objetos. `type` para uniones/intersecciones
-- No casteos inseguros (`as Foo` sin validar)
-
-### Anti-patrones — nunca hacer
-- ❌ `function` keyword para declarar funciones o componentes
-- ❌ Props tipadas inline dentro del componente
-- ❌ Lógica de negocio dentro de componentes — va en hooks/utils/services
-- ❌ `useEffect` para fetch, estado derivado o sync con props
-- ❌ `"use client"` innecesario — Server Component por defecto
-- ❌ `let` donde `const` + transformación funcional resuelve lo mismo
-- ❌ `console.log` en código de producción
-- ❌ Strings mágicos hardcodeados — usar constantes o enums
-- ❌ Estado global para datos del servidor — usar TanStack Query o Next.js cache
-- ❌ Componentes de más de ~100 líneas sin extraer sub-componentes o hooks
+- **Funciones siempre `const`** — nunca `function` keyword (ni componentes, ni handlers, ni utils)
+- **Props: `interface IXxxProps` fuera del componente**, exportable — nunca inline
+- **Componentes genéricos** — nombre describe QUÉ es, no DÓNDE se usa. Sin lógica de negocio adentro
+- **Separación estricta**: `components/` solo JSX · `hooks/` lógica stateful · `utils/` funciones puras · `services/` llamadas externas · `mappers/` API→dominio · `types/` interfaces
+- **Max ~100L por componente, ~150L por cualquier archivo** — si se pasa, extraer
+- **`const` siempre, `let` solo si el valor se reasigna inevitablemente**
+- **Early return** — validar caso negativo primero, no anidar if/else
+- **Lookup objects** en vez de if/else chains o switch
+- **TypeScript strict** — nunca `any`, nunca casteos sin validar, `interface` con prefijo `I`
+- **Nunca `useEffect` para fetch** — Server Components o TanStack Query
+- **Nunca `"use client"` por costumbre** — Server Component por defecto
 
 ---
 
@@ -185,10 +77,7 @@ IMPORTANT: Detect context → read SKILL.md → THEN write code. Never skip this
 | Context | Read this file |
 | ------- | -------------- |
 | React components, hooks, JSX | `~/.claude/skills/react-19/SKILL.md` |
-| Next.js app router, server components, routing | `~/.claude/skills/nextjs-15/SKILL.md` |
-| Next.js file conventions, RSC boundaries, data patterns | `~/.claude/skills/next-best-practices/SKILL.md` |
-| Next.js app router principles, data fetching patterns | `~/.claude/skills/nextjs-best-practices/SKILL.md` |
-| React/Next.js performance, bundle, data fetching optimization | `~/.claude/skills/vercel-react-best-practices/SKILL.md` |
+| Next.js — routing, RSC, Server Actions, data fetching, performance | `~/.claude/skills/nextjs/SKILL.md` |
 | TypeScript types, interfaces, generics | `~/.claude/skills/typescript/SKILL.md` |
 | Tailwind classes, styling | `~/.claude/skills/tailwind-4/SKILL.md` |
 | Design systems, component libraries, design tokens | `~/.claude/skills/tailwind-design-system/SKILL.md` |

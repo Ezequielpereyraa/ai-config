@@ -12,10 +12,7 @@ Todos los paths apuntan a `~/.claude/skills/`.
 
 | Skill | Path | Cuándo priorizar |
 |---|---|---|
-| next-best-practices | `~/.claude/skills/next-best-practices/SKILL.md` | Siempre con Next.js |
-| nextjs-best-practices | `~/.claude/skills/nextjs-best-practices/SKILL.md` | Siempre con Next.js |
-| nextjs-15 | `~/.claude/skills/nextjs-15/SKILL.md` | Si la versión de Next.js es >= 15 |
-| vercel-react-best-practices | `~/.claude/skills/vercel-react-best-practices/SKILL.md` | Para performance y data fetching |
+| nextjs | `~/.claude/skills/nextjs/SKILL.md` | Siempre con Next.js |
 
 ---
 
@@ -199,12 +196,10 @@ Todos los paths apuntan a `~/.claude/skills/`.
 
 Para el stack más común, las skills mínimas a cargar siempre son:
 
-1. `~/.claude/skills/nextjs-15/SKILL.md`
-2. `~/.claude/skills/next-best-practices/SKILL.md`
-3. `~/.claude/skills/react-19/SKILL.md`
-4. `~/.claude/skills/vercel-react-best-practices/SKILL.md`
-5. `~/.claude/skills/typescript/SKILL.md`
-6. `~/.claude/skills/tailwind-4/SKILL.md`
+1. `~/.claude/skills/nextjs/SKILL.md`
+2. `~/.claude/skills/react-19/SKILL.md`
+3. `~/.claude/skills/typescript/SKILL.md`
+4. `~/.claude/skills/tailwind-4/SKILL.md`
 
 Agregar según lo que se detecte adicionalmente:
 - `zod-4`, `react-hook-form` → si hay formularios
