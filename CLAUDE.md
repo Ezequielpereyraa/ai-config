@@ -42,6 +42,73 @@ Direct, no filter. Authority from experience. Frustration with "tutorial program
 
 ---
 
+## Code Conventions (apply to ALL code written)
+
+These apply always — whether in pipeline or not. No exceptions.
+
+### `const` por defecto, `let` solo si es inevitable
+```ts
+// ❌
+let result = []
+for (let i = 0; i < items.length; i++) result.push(transform(items[i]))
+// ✅
+const result = items.map(transform)
+```
+
+### Sin `if/else` — early return y casos positivos primero
+```ts
+// ❌
+function process(user) {
+  if (user) {
+    if (user.active) {
+      return doSomething(user)
+    } else {
+      return null
+    }
+  } else {
+    return null
+  }
+}
+// ✅
+function process(user) {
+  if (!user) return null
+  if (!user.active) return null
+  return doSomething(user)
+}
+```
+
+### Lookup objects en vez de if/else chains o switch
+```ts
+// ❌
+if (role === 'admin') return AdminView
+else if (role === 'editor') return EditorView
+else return UserView
+// ✅
+const VIEW = { admin: AdminView, editor: EditorView, user: UserView } as const
+return VIEW[role] ?? VIEW.user
+```
+
+### Una responsabilidad por función/archivo
+- `utils/` → funciones puras de transformación
+- `hooks/` → lógica stateful reutilizable
+- `services/` → llamadas a APIs/integraciones externas
+- Máx ~150 líneas por archivo — si se pasa, extraer
+- Lógica de negocio NUNCA en componentes UI ni controllers
+
+### TypeScript siempre estricto
+- Nunca `any` → usar `unknown` + type narrowing
+- `interface` para contratos de objetos. `type` para uniones/intersecciones
+- No casteos inseguros (`as Foo` sin validar)
+
+### Anti-patrones nunca hacer
+- ❌ `useEffect` para fetch, estado derivado o sync con props
+- ❌ `"use client"` innecesario — Server Component por defecto
+- ❌ `console.log` en código de producción
+- ❌ Strings mágicos hardcodeados — usar constantes o enums
+- ❌ Estado global para datos del servidor — usar TanStack Query o Next.js cache
+
+---
+
 ## Skills (Auto-load based on context)
 
 IMPORTANT: Detect context → read SKILL.md → THEN write code. Never skip this.
@@ -73,6 +140,8 @@ IMPORTANT: Detect context → read SKILL.md → THEN write code. Never skip this
 | Framer Motion, animations, transitions | `~/.claude/skills/framer-motion/SKILL.md` |
 | AI SDK, Vercel AI, streaming | `~/.claude/skills/ai-sdk-5/SKILL.md` |
 | NestJS modules, controllers, services, guards, DTOs | `~/.claude/skills/nestjs/SKILL.md` |
+| Firebase, Firestore, Firebase Auth, Cloud Storage | `~/.claude/skills/firebase/SKILL.md` |
+| Supabase, Supabase Auth, RLS, PostgreSQL via Supabase | `~/.claude/skills/supabase/SKILL.md` |
 | Unit tests with Vitest | `~/.claude/skills/vitest/SKILL.md` |
 | E2E tests with Playwright | `~/.claude/skills/playwright/SKILL.md` |
 | Django, DRF, Python API | `~/.claude/skills/django-drf/SKILL.md` |
@@ -95,7 +164,7 @@ IMPORTANT: Detect context → read SKILL.md → THEN write code. Never skip this
 
 Senior fullstack developer and SaaS founder.
 
-**Stack:** Next.js (App Router, RSC, Server Actions) · TypeScript strict · Firebase/Firestore · NestJS · Tailwind · TanStack Query · React Hook Form · Framer Motion
+**Stack:** Next.js (App Router, RSC, Server Actions) · TypeScript strict · Firebase/Firestore · Supabase/PostgreSQL · NestJS · Tailwind · TanStack Query · React Hook Form · Framer Motion
 
 **Context:** Multi-tenant SaaS products. Business-driven decisions (ROI, scalability, speed). Frontend modular and feature-based. Backend with Controller → Service → Repository.
 

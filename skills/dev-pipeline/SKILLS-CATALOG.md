@@ -134,6 +134,26 @@ Todos los paths apuntan a `~/.claude/skills/`.
 
 ---
 
+## Firebase
+
+**Detectar:** `"firebase"` o `"firebase-admin"` en dependencies
+
+| Skill | Path | Cuándo priorizar |
+|---|---|---|
+| firebase | `~/.claude/skills/firebase/SKILL.md` | Siempre que haya Firebase/Firestore |
+
+---
+
+## Supabase
+
+**Detectar:** `"@supabase/supabase-js"` o `"@supabase/ssr"` en dependencies
+
+| Skill | Path | Cuándo priorizar |
+|---|---|---|
+| supabase | `~/.claude/skills/supabase/SKILL.md` | Siempre que haya Supabase |
+
+---
+
 ## NestJS
 
 **Detectar:** `"@nestjs/core"` en dependencies
