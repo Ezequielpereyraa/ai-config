@@ -57,6 +57,9 @@ These apply always. Full examples in `~/.claude/skills/dev-pipeline/RULES.md`.
 - **TypeScript strict** — nunca `any`, nunca casteos sin validar, `interface` con prefijo `I`
 - **Nunca `useEffect` para fetch** — Server Components o TanStack Query
 - **Nunca `"use client"` por costumbre** — Server Component por defecto
+- **Server → Client props: solo serializables** — no funciones, no `Date`, no instancias de clase. Formatear valores (fechas, montos) en el servidor antes de pasar como prop
+- **Validar en los límites** — API routes, Server Actions, formularios. No re-validar entre capas internas ya validadas
+- **Validaciones con razón explícita** — si no tiene justificación de negocio o técnica, no agregarla
 
 ---
 

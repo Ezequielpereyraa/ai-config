@@ -192,6 +192,103 @@ const Component = ROLE_COMPONENT[role] ?? ROLE_COMPONENT.user
 
 ---
 
+## Server → Client boundary
+
+### Solo valores serializables como props
+
+Los Client Components solo aceptan props que se pueden serializar a JSON. Si pasás algo no serializable, React tira error en runtime.
+
+```ts
+// ❌ — función, instancia de clase, Date, Map, Set
+<ClientComponent
+  onClick={handleClick}       // función no serializable
+  date={new Date()}           // Date no es plain object
+  user={new UserClass()}      // instancia de clase
+/>
+
+// ✅ — primitivos y plain objects únicamente
+<ClientComponent
+  label="Confirmar"
+  timestamp={date.toISOString()}   // string
+  user={{ id: user.id, name: user.name }}  // plain object
+/>
+```
+
+### Formatear valores en el servidor, no en el cliente
+
+Convertí fechas, números y cualquier valor que necesite transformación **antes** de pasarlo como prop. El Client Component recibe texto listo para mostrar.
+
+```ts
+// ❌ — el cliente recibe un timestamp y lo formatea él mismo
+<PriceDisplay amount={product.priceInCents} />  // número sin formatear
+
+// ✅ — el server formatea, el cliente solo renderiza
+const formattedPrice = formatCurrency(product.priceInCents, 'ARS')
+<PriceDisplay price={formattedPrice} />  // string listo
+```
+
+**Regla**: si un Client Component tiene lógica de formateo de datos → esa lógica no debería estar ahí. Moverla al server o a un `util` que el server llama.
+
+---
+
+## Validación de datos
+
+### Validar en los límites del sistema, no adentro
+
+Validar cuando los datos entran al sistema: API routes, Server Actions, formularios. No validar internamente entre capas que ya son de confianza.
+
+```ts
+// ✅ — validar en el entry point (Server Action / API route)
+const schema = z.object({
+  name: z.string().min(1).max(100),
+  email: z.string().email(),
+})
+
+const parsed = schema.safeParse(formData)
+if (!parsed.success) return { error: parsed.error.flatten() }
+
+// A partir de acá, `parsed.data` es de confianza — no re-validar adentro del servicio
+await userService.create(parsed.data)
+```
+
+### Nunca asumir la forma de un objeto externo
+
+Datos de APIs externas, Firestore, Supabase o `params`/`searchParams` de Next.js: siempre parsear antes de usar.
+
+```ts
+// ❌ — asume que el shape es correcto
+const { id, name } = await fetchUser(userId)
+
+// ✅ — parsear con Zod y manejar el error
+const result = UserSchema.safeParse(await fetchUser(userId))
+if (!result.success) throw new Error('Unexpected user shape')
+const { id, name } = result.data
+```
+
+### Validaciones deben ser simples y tener sentido de negocio
+
+- Si no sabés exactamente POR QUÉ estás validando algo → no lo validés
+- No agregar validaciones defensivas para casos que nunca pueden pasar
+- No validar dentro de funciones internas que solo reciben datos ya validados
+- Cada validación debe tener una razón explícita de negocio o técnica
+
+```ts
+// ❌ — sobre-validación sin sentido, el tipo ya lo garantiza
+const getUser = (id: string) => {
+  if (!id) throw new Error('id required')       // TypeScript ya lo garantiza
+  if (typeof id !== 'string') throw new Error() // idem
+  ...
+}
+
+// ✅ — solo validar lo que el tipo no puede garantizar
+const getUser = (id: string) => {
+  if (!id.trim()) throw new Error('id cannot be empty string')
+  ...
+}
+```
+
+---
+
 ## Anti-patrones — nunca hacer
 
 - ❌ `function` keyword para declarar funciones o componentes
@@ -207,3 +304,8 @@ const Component = ROLE_COMPONENT[role] ?? ROLE_COMPONENT.user
 - ❌ Estado global para datos del servidor — usar React Query o cache de Next.js
 - ❌ Duplicar lógica que ya existe en `utils/`, `hooks/`, `mappers/` o `services/`
 - ❌ Componentes de más de ~100 líneas
+- ❌ Pasar funciones, instancias de clase, `Date`, `Map`, `Set` como props a Client Components
+- ❌ Pasar datos sin formatear al cliente — formatear en servidor o en utils
+- ❌ Asumir la forma de datos externos sin parsear (APIs, Firestore, params)
+- ❌ Validaciones sin razón de negocio explícita — si no sabés por qué, no la ponés
+- ❌ Re-validar datos internos que ya fueron validados en el entry point
