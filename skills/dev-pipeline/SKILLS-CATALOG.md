@@ -134,6 +134,16 @@ Todos los paths apuntan a `~/.claude/skills/`.
 
 ---
 
+## NestJS
+
+**Detectar:** `"@nestjs/core"` en dependencies
+
+| Skill | Path | Cuándo priorizar |
+|---|---|---|
+| nestjs | `~/.claude/skills/nestjs/SKILL.md` | Siempre que haya NestJS |
+
+---
+
 ## Backend Python / Django
 
 **Detectar:** `django` o `djangorestframework` en requirements.txt

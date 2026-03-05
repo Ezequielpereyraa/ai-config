@@ -295,7 +295,12 @@ Verificá cada punto leyendo el código:
    - ¿Imágenes sin next/image?
    - ¿Dependencias innecesarias agregadas?
 
-6. COMPLETITUD: ¿Se implementó todo lo que pedía la tarea original?
+6. TESTS: (el proyecto está incorporando testing progresivamente)
+   - Si la tarea crea nueva lógica de negocio (service, hook, util): indicá qué test unitario debería escribirse y en qué path
+   - Si la tarea crea un flujo de usuario completo: indicá qué caso E2E debería cubrirse
+   - No bloquear el merge por falta de tests — solo informar qué falta y dónde
+
+7. COMPLETITUD: ¿Se implementó todo lo que pedía la tarea original?
 
 Formato del reporte:
 ## Resultado: PASS ✅ / FAIL ❌ / PASS CON OBSERVACIONES ⚠️
