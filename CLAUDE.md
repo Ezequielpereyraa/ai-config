@@ -46,6 +46,67 @@ Direct, no filter. Authority from experience. Frustration with "tutorial program
 
 These apply always — whether in pipeline or not. No exceptions.
 
+### Declaración de funciones — siempre `const`, nunca `function`
+```ts
+// ❌
+function processUser(user: User) { ... }
+export default function MyComponent() { ... }
+
+// ✅
+const processUser = (user: User) => { ... }
+const MyComponent = () => { ... }
+export default MyComponent
+```
+
+### Props — tipado fuera del componente, siempre `IProps`
+```ts
+// ❌ — tipo inline, nombre genérico
+const Card = ({ title, onClick }: { title: string; onClick: () => void }) => { ... }
+
+// ✅ — interface fuera, prefijo I, importable
+interface ICardProps {
+  title: string
+  onClick: () => void
+  className?: string
+}
+
+const Card = ({ title, onClick, className }: ICardProps) => { ... }
+export type { ICardProps }
+```
+
+### Componentes — siempre reutilizables, nunca one-off
+- Props genéricas: no hardcodear valores que deberían venir como prop
+- Nombre describe QUÉ es, no DÓNDE se usa (`UserCard`, no `DashboardUserCard`)
+- Antes de crear: buscar si existe algo similar y extenderlo
+- Si un componente solo funciona en un contexto específico → extraer la lógica a un hook y dejar el componente genérico
+
+### Separación estricta de responsabilidades
+```
+components/
+  UserCard/
+    UserCard.tsx        ← solo JSX, cero lógica
+    UserCard.types.ts   ← IUserCardProps y otros tipos del componente
+    index.ts            ← re-export
+
+hooks/
+  useUsers.ts           ← lógica stateful, llamadas a servicios
+  useUserFilters.ts     ← lógica de filtrado/búsqueda
+
+utils/
+  user.utils.ts         ← funciones puras de transformación
+
+mappers/
+  user.mapper.ts        ← API response → dominio interno
+
+services/
+  user.service.ts       ← llamadas a API / Firestore / Supabase
+
+types/
+  user.types.ts         ← interfaces y types del dominio
+```
+
+**Regla**: si un componente tiene más de 2-3 líneas de lógica que no son JSX → extraer a hook o util.
+
 ### `const` por defecto, `let` solo si es inevitable
 ```ts
 // ❌
@@ -55,10 +116,10 @@ for (let i = 0; i < items.length; i++) result.push(transform(items[i]))
 const result = items.map(transform)
 ```
 
-### Sin `if/else` — early return y casos positivos primero
+### Sin `if/else` — early return y casos negativos primero
 ```ts
 // ❌
-function process(user) {
+const process = (user: User | null) => {
   if (user) {
     if (user.active) {
       return doSomething(user)
@@ -70,7 +131,7 @@ function process(user) {
   }
 }
 // ✅
-function process(user) {
+const process = (user: User | null) => {
   if (!user) return null
   if (!user.active) return null
   return doSomething(user)
@@ -88,24 +149,22 @@ const VIEW = { admin: AdminView, editor: EditorView, user: UserView } as const
 return VIEW[role] ?? VIEW.user
 ```
 
-### Una responsabilidad por función/archivo
-- `utils/` → funciones puras de transformación
-- `hooks/` → lógica stateful reutilizable
-- `services/` → llamadas a APIs/integraciones externas
-- Máx ~150 líneas por archivo — si se pasa, extraer
-- Lógica de negocio NUNCA en componentes UI ni controllers
-
 ### TypeScript siempre estricto
 - Nunca `any` → usar `unknown` + type narrowing
-- `interface` para contratos de objetos. `type` para uniones/intersecciones
+- `interface` (con prefijo `I`) para contratos de objetos. `type` para uniones/intersecciones
 - No casteos inseguros (`as Foo` sin validar)
 
-### Anti-patrones nunca hacer
+### Anti-patrones — nunca hacer
+- ❌ `function` keyword para declarar funciones o componentes
+- ❌ Props tipadas inline dentro del componente
+- ❌ Lógica de negocio dentro de componentes — va en hooks/utils/services
 - ❌ `useEffect` para fetch, estado derivado o sync con props
 - ❌ `"use client"` innecesario — Server Component por defecto
+- ❌ `let` donde `const` + transformación funcional resuelve lo mismo
 - ❌ `console.log` en código de producción
 - ❌ Strings mágicos hardcodeados — usar constantes o enums
 - ❌ Estado global para datos del servidor — usar TanStack Query o Next.js cache
+- ❌ Componentes de más de ~100 líneas sin extraer sub-componentes o hooks
 
 ---
 
