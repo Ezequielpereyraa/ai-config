@@ -256,22 +256,27 @@ Revisá la lista antes de que empiece la implementación.
 Marcá Fase 3 como `in_progress`. Lanzá el agente con este prompt:
 
 ```
-Implementá exactamente lo aprobado. Antes de escribir cualquier línea:
-1. Leé [RULES.md](RULES.md)
-2. Leé cada archivo que vas a modificar
-3. Verificá que estás usando los reutilizables del plan
+Implementá exactamente lo aprobado.
 
-TAREA ORIGINAL: [TAREA DEL USUARIO]
+TAREA: [TAREA DEL USUARIO]
 
-STACK Y BEST PRACTICES: [LISTA DE SKILLS CARGADAS EN FASE 0]
-Aplicá las guías de esas skills en cada decisión.
+Antes de escribir cualquier línea, leé estos archivos:
+- ~/.claude/skills/dev-pipeline/RULES.md
+[PATHS DE SKILLS CARGADAS EN FASE 0 — uno por línea, ej: ~/.claude/skills/nextjs/SKILL.md]
+
+Luego leé cada archivo que vas a modificar antes de tocarlo.
 
 PLAN APROBADO:
-[OUTPUT COMPLETO DE FASE 2]
+[SOLO ESTAS SECCIONES DEL OUTPUT DE FASE 2:]
+- Reutilizables que se van a usar
+- Pasos de implementación
+- Archivos a crear
+- Archivos a modificar
+- Decisiones de diseño
 
 Reglas obligatorias:
-- Usá TODOS los reutilizables identificados — no recreés nada que ya existe
-- Componentes nuevos: props genéricas, sin lógica de negocio hardcodeada, IProps fuera del componente
+- Usá TODOS los reutilizables del plan — no recreés nada que ya existe
+- Componentes nuevos: props genéricas, IProps fuera del componente, sin lógica de negocio
 - Funciones siempre como const arrow functions, nunca function keyword
 - Separación estricta: lógica en services/utils/hooks/mappers, UI en componentes
 - Si encontrás algo que el plan no contempló y cambia la lógica de negocio → STOP y reportalo
@@ -281,6 +286,8 @@ Al terminar, devolvé:
 1. Lista de archivos creados/modificados con descripción de una línea cada uno
 2. Decisiones no previstas en el plan (si las hubo) con justificación
 ```
+
+**Nota para el orquestador:** Al construir el prompt de Fase 3, extraé SOLO las secciones accionables del plan (reutilizables, pasos, archivos, decisiones). No pasés "Contexto", "Mejoras incluidas" ni "Riesgos" — eso ya no es necesario en esta fase.
 
 **Acción del orquestador:**
 - Marcá Fase 3 como `completed`
@@ -311,14 +318,13 @@ ARCHIVOS MODIFICADOS/CREADOS: [LISTA DE FASE 3]
    - ¿Se duplicó lógica que ya existía?
    - ¿Los componentes nuevos son reutilizables o tienen lógica hardcodeada?
 
-3. CONVENCIONES: Leé [RULES.md](RULES.md) y verificá:
+3. CONVENCIONES: Leé ~/.claude/skills/dev-pipeline/RULES.md y verificá:
    - const arrow functions, nunca function keyword
    - Props tipadas fuera del componente con IProps
    - No if/else → early return, lookup objects
    - No let innecesario
    - No any ni casteos inseguros
    - Separación en utils/hooks/mappers/services
-   Skills activas: [LISTA DE SKILLS CARGADAS EN FASE 0]
 
 4. LINTS:
    - ESLint: Bash `npx eslint --format=compact <archivos>`
@@ -362,7 +368,7 @@ Formato:
 
 - **No implementes vos** — siempre delegá a agentes
 - **Nunca des nada por sabido** — si la lógica de negocio no queda clara, preguntá
-- **Pasá contexto completo entre fases** — cada agente empieza desde cero
+- **Pasá solo el contexto necesario para cada fase** — no acumulés outputs anteriores. Fase 3 recibe el plan comprimido (secciones accionables), no el raw de Fase 1. Fase 4 recibe solo archivos + reutilizables del plan.
 - **Fase 1 es obligatoria siempre** — no saltearse la investigación ni en tareas "simples"
 - **El checkpoint de aprobación es hard stop** — sin OK del usuario no hay Fase 3
 - **Si Fase 4 falla**, relanzar solo Fase 3 — no reiniciar todo el pipeline
