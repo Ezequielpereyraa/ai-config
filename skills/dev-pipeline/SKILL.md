@@ -46,13 +46,23 @@ Fase 4: QA (general-purpose · haiku)
 
 ---
 
+## Modelos por fase — justificación
+
+| Fase | Modelo | Por qué |
+|------|--------|---------|
+| Fase 1 — Investigación | **`opus`** | La fase más crítica del pipeline. Lee código real, entiende lógica de negocio implícita, detecta patrones sutiles y oportunidades de mejora. Si Fase 1 falla, todo lo que sigue falla. Vale el costo — es read-only. |
+| Fase 2 — Plan | **`sonnet`** | Necesita buen razonamiento para validar y estructurar, pero el análisis duro ya lo hizo Opus en Fase 1. Sonnet procesa ese output y genera el checklist. |
+| Fase 3 — Implementación | **`sonnet`** | Generación de código de alta calidad siguiendo un plan explícito y aprobado. El plan define el qué — Sonnet ejecuta el cómo con precisión. |
+| Fase 4 — QA | **`haiku`** | Verificación estructurada contra un checklist, corrida de lints determinísticos, confirmación de convenciones. Tarea mecánica, no requiere razonamiento complejo. |
+
 ## Herramientas del orquestador
 
 | Propósito | Herramienta |
 |-----------|-------------|
-| Agente exploración (read-only, rápido) | `Agent` con `subagent_type: "Explore"`, `model: "haiku"` |
-| Agente análisis/plan | `Agent` con `subagent_type: "general-purpose"`, `model: "haiku"` |
-| Agente implementación | `Agent` con `subagent_type: "general-purpose"` (modelo default) |
+| Fase 1 — Investigación | `Agent` con `subagent_type: "Explore"`, `model: "opus"` |
+| Fase 2 — Plan | `Agent` con `subagent_type: "general-purpose"`, `model: "sonnet"` |
+| Fase 3 — Implementación | `Agent` con `subagent_type: "general-purpose"`, `model: "sonnet"` |
+| Fase 4 — QA | `Agent` con `subagent_type: "general-purpose"`, `model: "haiku"` |
 | Registrar y trackear fases | `TaskCreate` + `TaskUpdate` |
 | Linting en QA | `Bash(npx eslint --format=compact <archivos>)` y `Bash(npx tsc --noEmit)` |
 
@@ -90,7 +100,7 @@ Skills cargadas: nextjs-15, react-19, typescript, tailwind-4, next-best-practice
 
 ## Fase 1 — Investigación
 
-**Agente:** `Explore` · `model: "haiku"`
+**Agente:** `Explore` · `model: "opus"`
 
 Esta fase siempre corre antes de cualquier implementación. Su objetivo es entender el terreno: qué existe, cómo funciona, qué se puede reutilizar, qué se puede mejorar.
 
@@ -146,7 +156,7 @@ Listá claramente — estas se resuelven con el usuario antes de continuar.
 
 ## Fase 2 — Plan y lista de tareas
 
-**Agente:** `general-purpose` · `model: "haiku"`
+**Agente:** `general-purpose` · `model: "sonnet"`
 
 Marcá Fase 2 como `in_progress`. Lanzá el agente con este prompt:
 
@@ -241,7 +251,7 @@ Revisá la lista antes de que empiece la implementación.
 
 ## Fase 3 — Implementación
 
-**Agente:** `general-purpose` · modelo default
+**Agente:** `general-purpose` · `model: "sonnet"`
 
 Marcá Fase 3 como `in_progress`. Lanzá el agente con este prompt:
 
@@ -281,7 +291,7 @@ Al terminar, devolvé:
 
 ## Fase 4 — QA
 
-**Agente:** `general-purpose` · `model: "haiku"`
+**Agente:** `general-purpose` · `model: "haiku"` *(verificación estructurada + lints determinísticos)*
 
 Marcá Fase 4 como `in_progress`. Lanzá el agente con este prompt:
 
