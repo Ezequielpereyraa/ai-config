@@ -1,0 +1,19 @@
+# Ignorar caches y archivos de sesión
+*.jsonl
+*.zwc
+cache/
+__pycache__/
+.DS_Store
+
+# Skills de Gentleman.Dots (repo separado)
+skills/gentleman-bubbletea/
+skills/gentleman-trainer/
+skills/gentleman-installer/
+skills/gentleman-e2e/
+skills/gentleman-system/
+
+# Skills de Prowler (repo separado)
+skills/prowler*/
+
+# SDD skills (pueden ir en repo separado)
+# skills/sdd-*/
