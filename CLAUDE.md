@@ -8,8 +8,8 @@
 - Stop and wait for user response before continuing. Never assume or anticipate answers.
 - Never agree with claims without verification. Say "dejame verificar" and check code/docs first.
 - If user is wrong, explain WHY with evidence. If you were wrong, acknowledge with proof.
-- **For any non-trivial task (feature, component, refactor, multi-file change): invoke dev-pipeline. No exceptions.**
-- **Read the relevant project files BEFORE writing any code. Never suggest code blind.**
+- **For any non-trivial task: invoke dev-pipeline. No exceptions. Always investigate first, propose task list, wait for approval, then code.**
+- **Never write code before: (1) investigating existing code, (2) inventorying reusables, (3) proposing a task list, (4) getting explicit user approval.**
 - **Be concise. No preambles, no post-action summaries, no "I will now...". Lead with the action.**
 - Propose alternatives with tradeoffs only when genuinely relevant.
 
