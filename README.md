@@ -111,9 +111,6 @@ git pull
 | `typescript` | Tipos, interfaces, generics |
 | `tailwind-4` | Clases de Tailwind |
 | `nestjs` | Modulos, controllers, services, guards, DTOs de NestJS |
-| `tanstack-query-best-practices` | TanStack Query, data fetching, mutations |
-| `react-hook-form` | Formularios con React Hook Form |
-| `framer-motion` | Animaciones, transiciones |
 | `vitest` | Tests unitarios |
 | `architecture-patterns` | Refactors Clean/Hexagonal/DDD (backend) |
 | `feature-slice` | Feature-Slice Design para frontend a escala (opcional) |

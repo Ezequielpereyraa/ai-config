@@ -1,91 +1,129 @@
 ---
 name: code-investigator
-description: Investiga cómo funciona algo en el proyecto. Usar cuando el usuario pregunta "¿cómo funciona X?", "¿por qué hace Y?", "no entiendo este flujo", "¿dónde se valida Z?", "¿qué pasa cuando...?". Responde con criterio técnico, no solo describiendo código sino explicando lógica de negocio, flujo de datos y decisiones de diseño.
+description: >
+  Investiga como funciona algo en el proyecto. Usar cuando el usuario pregunta
+  "como funciona X?", "por que hace Y?", "no entiendo este flujo", "donde se valida Z?",
+  "que pasa cuando...?". Responde con criterio tecnico explicando logica de negocio,
+  flujo de datos y decisiones de diseno — no describiendo codigo linea por linea.
 ---
 
 # Code Investigator
 
-Cuando el usuario pregunta cómo funciona algo, investigá en profundidad y respondé con criterio. No describas el código — **explicá qué hace, por qué lo hace así, y qué implicaciones tiene**.
+Cuando el usuario pregunta cómo funciona algo, investigá en profundidad y respondé con criterio. **No describas el código — explicá qué hace, por qué lo hace así, y qué implicaciones tiene.**
+
+> Aplica el mismo estándar que el dev-pipeline: leer código real, no asumir. Detectar mejoras de paso.
 
 ---
 
 ## Cuándo aplicar
 
-- "¿Cómo funciona la validación de X?"
+- "¿Cómo funciona la autenticación / validación / X?"
 - "No entiendo cómo fluyen los datos en Y"
 - "¿Por qué se hace Z de esta manera?"
 - "¿Dónde se maneja el error de W?"
 - "¿Qué pasa cuando el usuario hace A?"
-- "Explicame este componente / hook / servicio"
+- "Explicame este componente / hook / servicio / módulo"
 - "¿Cómo se conecta X con Y?"
 
 ---
 
 ## Proceso de investigación
 
-### Paso 1 — Entender la pregunta antes de buscar
+### Paso 1 — Entender la pregunta antes de tocar el código
 
-Antes de tocar el código, definí:
 - ¿Qué exactamente no se entiende? (el flujo, la lógica, la estructura, el comportamiento)
-- ¿Cuál es el punto de entrada más lógico para investigar?
-- ¿Hay términos ambiguos en la pregunta? Si los hay → preguntá antes de continuar
+- ¿Cuál es el punto de entrada más lógico para rastrear?
+- ¿Hay términos ambiguos? Si los hay → preguntá antes de continuar
 
-### Paso 2 — Rastrear desde el origen
+### Paso 2 — Rastrear desde el origen, no desde el medio
 
-No empieces desde el medio. Buscá siempre:
-1. **El punto de entrada** (el componente, endpoint, o evento que dispara el flujo)
-2. **El flujo completo** hacia adelante (qué llama a qué)
-3. **Las dependencias hacia atrás** (de dónde vienen los datos)
-4. **Los casos edge** (qué pasa cuando falla, qué pasa con valores nulos, etc.)
+```
+1. Punto de entrada     → componente, endpoint, evento, Server Action que dispara el flujo
+2. Flujo hacia adelante → qué llama a qué, qué transforma los datos
+3. Dependencias atrás   → de dónde vienen los datos, quién los produce
+4. Casos edge           → qué pasa cuando falla, valores nulos, estados especiales
+```
 
-### Paso 3 — Leer el código real, no asumir
+### Paso 3 — Leer el código real
 
-- Leé los archivos involucrados — no describas lo que "probablemente" hace
-- Si un tipo o interfaz es relevante, buscaló y leelo
-- Si hay una constante o configuración que afecta el comportamiento, encontrala
-- Si hay tests, son documentación ejecutable — léelos
+- Leé los archivos involucrados — nunca describas lo que "probablemente" hace
+- Si un tipo o interfaz es relevante, buscalo y leelo
+- Si hay constantes o configuración que afectan el comportamiento, encontralos
+- Si hay tests, son documentación ejecutable — son fuente de verdad
 
-### Paso 4 — Identificar las capas
+### Paso 4 — Identificar capas y separación de responsabilidades
 
-Para cada flujo investigado, identificá en qué capa vive cada parte:
-- **UI** → componentes, presentación
-- **Lógica de negocio** → hooks, services, utils
-- **Datos** → APIs, estado, cache
-- **Configuración** → constantes, variables de entorno
+```
+UI        → componentes, presentación, eventos del usuario
+Lógica    → hooks, services, utils, Server Actions, mappers
+Datos     → APIs, Firestore, Supabase, caché, estado
+Config    → constantes, env vars, feature flags
+```
+
+Señalá si la lógica está en la capa correcta. Si encontrás lógica de negocio en un componente, o datos siendo transformados en el controller — mencionarlo es parte de la investigación.
 
 ---
 
 ## Criterios de una buena respuesta
 
 ### Explicá el flujo, no el código
-❌ Mal: "El componente llama a `useState` con `false` como valor inicial y luego en el `onClick` lo cambia a `true`"
-✅ Bien: "El componente controla si el modal está abierto. Arranca cerrado y se abre cuando el usuario hace click en el botón de confirmar"
 
-### Mostrá las conexiones
-Siempre respondé:
+```
+❌ "El componente llama a useState con false y en el onClick lo cambia a true"
+✅ "El componente controla visibilidad del modal. Arranca cerrado,
+    se abre cuando el usuario confirma la acción"
+```
+
+### Mostrá las conexiones siempre
+
+Toda respuesta debe responder:
 - ¿Qué dispara este flujo?
-- ¿Qué datos entran?
-- ¿Qué transformaciones ocurren?
-- ¿Qué sale al final?
-- ¿Quién consume ese resultado?
+- ¿Qué datos entran y de dónde vienen?
+- ¿Qué transformaciones ocurren y en qué capa?
+- ¿Qué sale al final y quién lo consume?
 
-### Citá el código con contexto
+### Citá código con contexto
+
 Cuando mostrés código, incluí:
-- El path del archivo y las líneas relevantes
-- Por qué esa parte específica es importante para la pregunta
+- Path del archivo + número de línea
+- Por qué esa parte específica es relevante para la pregunta
 
 ### Señalá lo que no es obvio
+
 - Decisiones de diseño que podrían sorprender ("esto se hace así porque...")
-- Side effects implícitos
+- Side effects implícitos (revalidaciones, eventos, side writes)
 - Dependencias ocultas entre módulos
-- Comportamientos en casos edge
-- Código que podría ser un problema potencial
+- Comportamientos en casos edge o estados de error
+- Código que podría ser un problema potencial o deuda técnica
 
 ### Separar descripción de opinión
-Separar claramente:
-- **Cómo funciona** (hechos del código)
-- **Por qué está hecho así** (si se puede inferir del contexto)
-- **Observaciones** (si hay algo mejorable o llamativo, marcarlo explícitamente como observación)
+
+```
+Cómo funciona    → hechos del código, sin interpretar
+Por qué así      → si se puede inferir del contexto o patrones del proyecto
+Observaciones    → mejoras detectadas, marcadas explícitamente como observación
+```
+
+---
+
+## Upgrade nudges durante investigación
+
+Mientras investigás, detectá y mencioná si encontrás:
+
+| Si ves esto en el código | Mencionalo como observación |
+|---|---|
+| `useEffect` para fetch de datos | Podría ser Server Component o TanStack Query |
+| Lógica de negocio en componente UI | Debería estar en hook / service / util |
+| `any` o casteos inseguros | Oportunidad de tipar correctamente |
+| Datos de API sin parsear (sin Zod o type guard) | Riesgo de runtime error |
+| Fetch secuencial de datos independientes | `Promise.all()` los paraleliza |
+| `function` keyword en lugar de `const` arrow | Convención del proyecto |
+| Props inline en vez de `interface IProps` | Convención del proyecto |
+| `'use client'` innecesario | Podría ser Server Component |
+| Estado global para datos del servidor | TanStack Query o caché de Next.js |
+| Duplicación de lógica ya existente en otro módulo | Señalar el reutilizable existente |
+
+**Regla:** mencionarlos, no arreglarlos. La investigación responde preguntas — las mejoras van por el pipeline si el usuario quiere proceder.
 
 ---
 
@@ -94,43 +132,31 @@ Separar claramente:
 ```
 ## ¿Cómo funciona [X]?
 
-### Resumen en una oración
-[Una línea que cualquier persona pueda entender]
+### Resumen
+[Una oración que cualquier persona entienda]
 
 ### Flujo completo
-[Descripción del flujo de principio a fin, con referencias a archivos]
+[De principio a fin, con referencias a archivos y líneas]
 
-### Detalle por capa
+### Por capa
 **UI:** ...
 **Lógica:** ...
 **Datos:** ...
 
-### Casos edge o comportamientos especiales
+### Casos edge y manejo de errores
 - ...
 
-### Observaciones (opcional)
-- ...
+### Observaciones (si las hay)
+- [path:línea] — descripción de la mejora potencial
 ```
 
 ---
 
-## Reglas de criterio
-
-- **Nunca describas línea por línea** — sintetizá el comportamiento
-- **Si algo no está claro en el código, decilo** — no inventes comportamientos
-- **Si encontrás un problema o deuda técnica** al investigar, mencionalo sin exagerar
-- **Si la respuesta depende de configuración externa** (env vars, feature flags, datos de API), aclararlo
-- **Si el código cambió recientemente** y encontrás inconsistencias, señalálas
-- **Si hay múltiples formas de llegar al mismo resultado** en el código, mencionálas
-- **Preguntá si algo no queda claro** — es mejor una pregunta que una explicación incorrecta
-
----
-
-## Anti-patrones a evitar
+## Anti-patrones
 
 - ❌ Parafrasear el código sin agregar comprensión
 - ❌ Explicar partes que no se preguntaron
 - ❌ Asumir comportamiento sin leer el código
-- ❌ Dar por sentado que el usuario sabe cómo funciona una librería externa (explicar si es relevante)
-- ❌ Responder solo con código sin explicación
-- ❌ Omitir los casos edge o el manejo de errores
+- ❌ Responder solo con código sin explicación del flujo
+- ❌ Omitir casos edge y manejo de errores
+- ❌ Proponer cambios sin que el usuario los pidió — solo observar y mencionar

@@ -74,7 +74,6 @@ IMPORTANT: Detect context → read SKILL.md → THEN write code. Never skip this
 | ------- | -------------- |
 | **Any feature, component, refactor, or multi-file task** | `~/.claude/skills/dev-pipeline/SKILL.md` |
 | "¿cómo funciona X?", "explicame este flujo", "¿por qué hace Y?" | `~/.claude/skills/code-investigator/SKILL.md` |
-| Usuario busca skills o pregunta qué capacidades hay | `~/.claude/skills/find-skills/SKILL.md` |
 
 ### Framework / Library Detection
 
@@ -84,9 +83,6 @@ IMPORTANT: Detect context → read SKILL.md → THEN write code. Never skip this
 | Next.js — routing, RSC, Server Actions, caching, performance, Next.js 15 | `~/.claude/skills/nextjs/SKILL.md` |
 | TypeScript types, interfaces, generics, advanced patterns | `~/.claude/skills/typescript/SKILL.md` |
 | Tailwind classes, styling | `~/.claude/skills/tailwind-4/SKILL.md` |
-| Forms with react-hook-form | `~/.claude/skills/react-hook-form/SKILL.md` |
-| Client-side data fetching, TanStack Query, cache, mutations | `~/.claude/skills/tanstack-query-best-practices/SKILL.md` |
-| Framer Motion, animations, transitions | `~/.claude/skills/framer-motion/SKILL.md` |
 | NestJS modules, controllers, services, guards, DTOs | `~/.claude/skills/nestjs/SKILL.md` |
 | Unit tests with Vitest | `~/.claude/skills/vitest/SKILL.md` |
 | Architecture refactors, Clean/Hexagonal/DDD | `~/.claude/skills/architecture-patterns/SKILL.md` |

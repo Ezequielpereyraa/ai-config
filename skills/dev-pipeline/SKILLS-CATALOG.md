@@ -48,16 +48,6 @@ Todos los paths apuntan a `~/.claude/skills/`.
 
 ---
 
-## Formularios
-
-**Detectar:** `"react-hook-form"` en dependencies
-
-| Skill | Path | Cuando priorizar |
-|---|---|---|
-| react-hook-form | `~/.claude/skills/react-hook-form/SKILL.md` | Siempre que haya formularios |
-
----
-
 ## Testing unitario
 
 **Detectar:** `"vitest"` o `"@vitest/*"` en devDependencies
@@ -65,26 +55,6 @@ Todos los paths apuntan a `~/.claude/skills/`.
 | Skill | Path | Cuando priorizar |
 |---|---|---|
 | vitest | `~/.claude/skills/vitest/SKILL.md` | Cuando la tarea incluya tests unitarios |
-
----
-
-## Animaciones
-
-**Detectar:** `"framer-motion"` o `"motion"` en dependencies
-
-| Skill | Path | Cuando priorizar |
-|---|---|---|
-| framer-motion | `~/.claude/skills/framer-motion/SKILL.md` | Cuando la tarea incluya animaciones o transiciones |
-
----
-
-## Data fetching cliente
-
-**Detectar:** `"@tanstack/react-query"` o `"react-query"` en dependencies
-
-| Skill | Path | Cuando priorizar |
-|---|---|---|
-| tanstack-query-best-practices | `~/.claude/skills/tanstack-query-best-practices/SKILL.md` | Para hooks de data fetching, cache, mutaciones |
 
 ---
 
