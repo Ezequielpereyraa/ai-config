@@ -1,44 +1,44 @@
 # ai-config
 
-Personal Claude Code configuration — behavior, conventions, and skills for a senior fullstack/SaaS development workflow.
+Configuracion personal de Claude Code — comportamiento, convenciones y skills para un flujo de trabajo senior fullstack/SaaS.
 
-## What this is
+## Que es esto
 
-A set of files that configure how Claude Code behaves across all your projects:
+Un conjunto de archivos que configuran como se comporta Claude Code en todos tus proyectos:
 
-- **`CLAUDE.md`** — Global instructions: personality, tone, coding conventions, skill auto-loading rules, and user profile. Claude reads this on every conversation.
-- **`settings.json`** — Permissions (which tools Claude can use, which are blocked, which require confirmation), custom status line, and output preferences.
-- **`statusline.sh`** — Custom status bar rendered inside Claude Code: shows active model, current directory, git branch, lines added/removed, and context window usage as a progress bar.
-- **`skills/`** — Modular skill files. Each skill is a `SKILL.md` that Claude reads before writing code in that context (React, Next.js, NestJS, Supabase, Tailwind, etc.). Also includes the `dev-pipeline` skill — a multi-agent 5-phase workflow that investigates before implementing, proposes a task list, waits for approval, then codes.
+- **`CLAUDE.md`** — Instrucciones globales: personalidad, tono, convenciones de codigo, reglas de auto-carga de skills y perfil de usuario. Claude lo lee en cada conversacion.
+- **`settings.json`** — Permisos (que herramientas puede usar Claude, cuales estan bloqueadas, cuales requieren confirmacion), status line personalizado y preferencias de output.
+- **`statusline.sh`** — Barra de estado personalizada dentro de Claude Code: muestra el modelo activo, directorio actual, rama de git, lineas agregadas/eliminadas y uso de la ventana de contexto como barra de progreso.
+- **`skills/`** — Skills modulares. Cada skill es un `SKILL.md` que Claude lee antes de escribir codigo en ese contexto (React, Next.js, NestJS, Supabase, Tailwind, etc.). Incluye el skill `dev-pipeline` — un flujo de trabajo multi-agente de 5 fases que investiga antes de implementar, propone una lista de tareas, espera aprobacion y luego codea.
 
-## Who this is for
+## Para quien es
 
-Senior developers who use Claude Code daily and want it to behave like a competent senior engineer, not a tutorial bot. Specifically useful if you work with:
+Desarrolladores senior que usan Claude Code a diario y quieren que se comporte como un ingeniero senior competente, no como un bot de tutoriales. Util especificamente si trabajas con:
 
 - Next.js (App Router, RSC, Server Actions)
 - TypeScript strict
 - NestJS (Controller → Service → Repository)
-- Firebase / Firestore or Supabase / PostgreSQL
+- Firebase / Firestore o Supabase / PostgreSQL
 - Tailwind CSS v4
 - TanStack Query, React Hook Form, Framer Motion, Zustand
 
-Not designed for beginners. Claude is configured to push back on code-without-context, enforce conventions, and explain tradeoffs — not to just do whatever you ask.
+No esta disenado para principiantes. Claude esta configurado para hacer push back en codigo-sin-contexto, aplicar convenciones y explicar tradeoffs — no para hacer lo que le pidas sin cuestionarlo.
 
-## What it enforces
+## Que enforcea
 
-- `const` functions everywhere — no `function` keyword
-- `interface IXxxProps` pattern for React props
-- Strict module separation: `components/` / `hooks/` / `utils/` / `services/` / `mappers/` / `types/`
-- Max ~100 lines per component, ~150 per file
-- Early return pattern, lookup objects instead of switch/if-else chains
-- TypeScript strict — no `any`, no unvalidated casts
-- No `useEffect` for data fetching — Server Components or TanStack Query
-- No `"use client"` by default — Server Component first
-- `export default` per component file + `index.ts` re-export — no repeated name imports
+- Funciones `const` en todos lados — nunca keyword `function`
+- Patron `interface IXxxProps` para props de React
+- Separacion estricta de modulos: `components/` / `hooks/` / `utils/` / `services/` / `mappers/` / `types/`
+- Max ~100 lineas por componente, ~150 por archivo
+- Patron early return, lookup objects en vez de switch/if-else chains
+- TypeScript strict — sin `any`, sin casteos sin validar
+- Sin `useEffect` para data fetching — Server Components o TanStack Query
+- Sin `"use client"` por defecto — Server Component primero
+- `export default` por archivo de componente + re-export en `index.ts` — sin imports con nombre repetido
 
-## How to install
+## Como instalar
 
-Requires [Claude Code](https://docs.anthropic.com/en/docs/claude-code) installed.
+Requiere [Claude Code](https://docs.anthropic.com/en/docs/claude-code) instalado.
 
 ### Linux / macOS
 
@@ -49,9 +49,9 @@ chmod +x install.sh
 ./install.sh
 ```
 
-Creates symlinks from `~/.claude/` to this repo:
+Crea symlinks desde `~/.claude/` a este repo:
 
-| Symlink | Source |
+| Symlink | Fuente |
 |---|---|
 | `~/.claude/CLAUDE.md` | `ai-config/CLAUDE.md` |
 | `~/.claude/settings.json` | `ai-config/settings.json` |
@@ -66,33 +66,33 @@ cd ~/ai-config
 .\install.ps1
 ```
 
-The script tries to create symlinks first. If it can't (no permissions), it falls back to copying the files.
+El script intenta crear symlinks primero. Si no puede (sin permisos), copia los archivos como fallback.
 
-**To get symlinks on Windows** (recommended — lets you update with just `git pull`):
-- Go to **Settings → For developers** and enable **Developer Mode**, or
-- Run PowerShell as Administrator
+**Para tener symlinks en Windows** (recomendado — permite actualizar con solo `git pull`):
+- Ir a **Configuracion → Para desarrolladores** y activar **Modo desarrollador**, o
+- Ejecutar PowerShell como Administrador
 
-**Without symlinks**, the files are copied instead. To sync future changes, re-run `.\install.ps1`.
+**Sin symlinks**, los archivos se copian. Para sincronizar cambios futuros, volver a ejecutar `.\install.ps1`.
 
 ---
 
-Existing files are backed up with a `.backup` suffix before being replaced.
+Los archivos existentes se respaldan con sufijo `.backup` antes de ser reemplazados.
 
-Restart Claude Code after running install for changes to take effect.
+Reinicia Claude Code despues de instalar para que los cambios tomen efecto.
 
-## Updating
+## Como actualizar
 
-### Linux / macOS (or Windows with symlinks)
+### Linux / macOS (o Windows con symlinks)
 
-A `git pull` is enough — no reinstall needed:
+Un `git pull` es suficiente — no hace falta reinstalar. Como los archivos en `~/.claude/` son symlinks que apuntan al repo, el pull se refleja automaticamente:
 
 ```bash
 cd ~/ai-config && git pull
 ```
 
-### Windows (without symlinks)
+### Windows (sin symlinks)
 
-Pull and re-run the script:
+Pull y volver a ejecutar el script:
 
 ```powershell
 cd ~/ai-config
@@ -100,34 +100,34 @@ git pull
 .\install.ps1
 ```
 
-## Skills included
+## Skills incluidos
 
-| Skill | Trigger |
+| Skill | Cuando se activa |
 |---|---|
-| `dev-pipeline` | Any feature, component, refactor, or multi-file task |
-| `code-investigator` | "How does X work?", "explain this flow" |
-| `react-19` | React components, hooks, JSX |
-| `nextjs` | Next.js routing, RSC, Server Actions, data fetching |
-| `typescript` | Types, interfaces, generics |
-| `tailwind-4` | Tailwind classes |
-| `nestjs` | NestJS modules, controllers, services, guards, DTOs |
+| `dev-pipeline` | Cualquier feature, componente, refactor o tarea multi-archivo |
+| `code-investigator` | "Como funciona X?", "explicame este flujo" |
+| `react-19` | Componentes React, hooks, JSX |
+| `nextjs` | Routing de Next.js, RSC, Server Actions, data fetching |
+| `typescript` | Tipos, interfaces, generics |
+| `tailwind-4` | Clases de Tailwind |
+| `nestjs` | Modulos, controllers, services, guards, DTOs de NestJS |
 | `firebase` | Firebase, Firestore, Auth, Storage |
 | `supabase` | Supabase, RLS, PostgreSQL via Supabase |
 | `tanstack-query-best-practices` | TanStack Query, data fetching, mutations |
-| `react-hook-form` | Forms with React Hook Form |
-| `zustand-5` | Global state with Zustand |
-| `framer-motion` | Animations, transitions |
-| `zod-4` | Schema validation with Zod |
-| `vitest` | Unit tests |
-| `playwright` | E2E tests |
+| `react-hook-form` | Formularios con React Hook Form |
+| `zustand-5` | Estado global con Zustand |
+| `framer-motion` | Animaciones, transiciones |
+| `zod-4` | Validacion de schemas con Zod |
+| `vitest` | Tests unitarios |
+| `playwright` | Tests E2E |
 | `django-drf` | Django REST Framework |
-| `pytest` | Python tests |
-| `architecture-patterns` | Clean/Hexagonal/DDD refactors |
-| `react-doctor` | React QA, audit, performance review |
-| `seo-audit` | Technical SEO, meta tags |
+| `pytest` | Tests de Python |
+| `architecture-patterns` | Refactors Clean/Hexagonal/DDD |
+| `react-doctor` | QA de React, audit, revision de performance |
+| `seo-audit` | SEO tecnico, meta tags |
 
-## Requirements
+## Requisitos
 
 - Claude Code CLI
-- `jq` (used by `statusline.sh`)
-- Optional: `bat`, `rg` (ripgrep), `fd`, `sd`, `eza` — Claude is configured to prefer these over standard Unix tools
+- `jq` (usado por `statusline.sh`)
+- Opcional: `bat`, `rg` (ripgrep), `fd`, `sd`, `eza` — Claude esta configurado para preferir estas sobre las herramientas Unix estandar
