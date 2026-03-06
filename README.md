@@ -34,10 +34,13 @@ Not designed for beginners. Claude is configured to push back on code-without-co
 - TypeScript strict — no `any`, no unvalidated casts
 - No `useEffect` for data fetching — Server Components or TanStack Query
 - No `"use client"` by default — Server Component first
+- `export default` per component file + `index.ts` re-export — no repeated name imports
 
 ## How to install
 
 Requires [Claude Code](https://docs.anthropic.com/en/docs/claude-code) installed.
+
+### Linux / macOS
 
 ```bash
 git clone https://github.com/Ezequielpereyraa/ai-config.git ~/ai-config
@@ -46,7 +49,7 @@ chmod +x install.sh
 ./install.sh
 ```
 
-The script creates symlinks from `~/.claude/` to this repo:
+Creates symlinks from `~/.claude/` to this repo:
 
 | Symlink | Source |
 |---|---|
@@ -55,19 +58,47 @@ The script creates symlinks from `~/.claude/` to this repo:
 | `~/.claude/statusline.sh` | `ai-config/statusline.sh` |
 | `~/.claude/skills/` | `ai-config/skills/` |
 
+### Windows
+
+```powershell
+git clone https://github.com/Ezequielpereyraa/ai-config.git ~/ai-config
+cd ~/ai-config
+.\install.ps1
+```
+
+The script tries to create symlinks first. If it can't (no permissions), it falls back to copying the files.
+
+**To get symlinks on Windows** (recommended — lets you update with just `git pull`):
+- Go to **Settings → For developers** and enable **Developer Mode**, or
+- Run PowerShell as Administrator
+
+**Without symlinks**, the files are copied instead. To sync future changes, re-run `.\install.ps1`.
+
+---
+
 Existing files are backed up with a `.backup` suffix before being replaced.
 
 Restart Claude Code after running install for changes to take effect.
 
 ## Updating
 
-Since everything is symlinked, a `git pull` in this repo is enough:
+### Linux / macOS (or Windows with symlinks)
+
+A `git pull` is enough — no reinstall needed:
 
 ```bash
 cd ~/ai-config && git pull
 ```
 
-No reinstall needed.
+### Windows (without symlinks)
+
+Pull and re-run the script:
+
+```powershell
+cd ~/ai-config
+git pull
+.\install.ps1
+```
 
 ## Skills included
 
