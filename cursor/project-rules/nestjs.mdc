@@ -1,0 +1,82 @@
+---
+description: NestJS Controller → Service → Repository patterns. Auto-attached for NestJS backend files.
+globs: src/**/*.controller.ts, src/**/*.service.ts, src/**/*.repository.ts, src/**/*.module.ts, src/**/*.dto.ts
+alwaysApply: false
+---
+
+# NestJS — Controller → Service → Repository
+
+## Layer responsibilities
+
+```
+Controller  → HTTP only: parse request, call service, return response. No logic.
+Service     → Business logic, throws NestJS exceptions, stateless.
+Repository  → Data access only, returns null when not found (never throws).
+```
+
+## Controller
+
+```ts
+@Post()
+@HttpCode(HttpStatus.CREATED)
+create(@Body() dto: CreateUserDto, @CurrentUser() user: IAuthUser): Promise<IUser> {
+  return this.usersService.create(dto, user.tenantId)
+}
+```
+- No `try/catch` — use exception filters
+- Always type return values
+- `@HttpCode` explicit for non-200
+
+## Service
+
+```ts
+async findOne(id: string): Promise<IUser> {
+  const user = await this.repo.findById(id)
+  if (!user) throw new NotFoundException(`User ${id} not found`)
+  return user
+}
+```
+Built-in exceptions: `NotFoundException` · `ConflictException` · `ForbiddenException` · `BadRequestException`
+
+## Repository
+
+```ts
+findById(id: string): Promise<IUser | null> {
+  return this.prisma.user.findUnique({ where: { id } })
+}
+```
+Returns `null`, never throws. Service decides what to do with it.
+
+## DTOs
+
+```ts
+export class CreateUserDto {
+  @IsEmail()
+  @Transform(({ value }) => value.toLowerCase().trim())
+  email: string
+
+  @IsString()
+  @MinLength(2)
+  name: string
+}
+
+export class UpdateUserDto extends PartialType(CreateUserDto) {}
+```
+
+Global ValidationPipe in `main.ts`:
+```ts
+app.useGlobalPipes(new ValidationPipe({
+  whitelist: true,
+  forbidNonWhitelisted: true,
+  transform: true,
+}))
+```
+
+## Anti-patterns
+
+| ❌ Don't | ✅ Do |
+|---|---|
+| Business logic in controller | Move to service |
+| `throw NotFoundException` in repository | Return `null`, let service throw |
+| Prisma types in controller return type | Use domain interface or DTO |
+| Duplicate fields in UpdateDto | `PartialType(CreateDto)` |

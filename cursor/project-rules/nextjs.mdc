@@ -1,0 +1,67 @@
+---
+description: Next.js App Router conventions and patterns. Auto-attached when working with Next.js files.
+globs: app/**/*.tsx, app/**/*.ts, components/**/*.tsx, hooks/**/*.ts
+alwaysApply: false
+---
+
+# Next.js App Router
+
+## Server vs Client
+
+```
+Needs useState/useEffect/events?  → 'use client'
+Needs browser APIs?               → 'use client'
+Just renders data?                → Server Component (default)
+Both?                             → Server parent + Client leaf
+```
+
+Never add `'use client'` out of habit. Push it to the leaves.
+
+## Data fetching
+
+```ts
+// ✅ Parallel
+const [users, posts] = await Promise.all([getUsers(), getPosts()])
+
+// ✅ Stream slow data
+<Suspense fallback={<Skeleton />}>
+  <SlowComponent />
+</Suspense>
+
+// ✅ Next.js 15 — params/searchParams are async (BREAKING)
+const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
+  const { id } = await params
+}
+
+// ✅ cookies/headers are async (BREAKING)
+const cookieStore = await cookies()
+```
+
+## Server Actions
+
+```ts
+'use server'
+export const createItem = async (formData: FormData) => {
+  await db.items.create({ data: { name: formData.get('name') as string } })
+  revalidatePath('/items')
+}
+```
+
+## Performance
+
+- `dynamic()` for heavy client components
+- `next/image` — never `<img>`
+- `next/link` — never `<a>` for internal nav
+- `import 'server-only'` for server-only modules
+- Direct imports over barrel files for large libs
+
+## Anti-patterns
+
+| ❌ Don't | ✅ Do |
+|---|---|
+| `useEffect` for fetch | Server Component or TanStack Query |
+| Sequential awaits on independent fetches | `Promise.all()` |
+| `'use client'` on layouts or pages | Push to leaf components |
+| `params.id` without awaiting | `const { id } = await params` |
+| `<img>` | `next/image` |
+| `<a>` for internal links | `next/link` |
