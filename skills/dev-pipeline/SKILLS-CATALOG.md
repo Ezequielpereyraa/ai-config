@@ -88,16 +88,6 @@ Todos los paths apuntan a `~/.claude/skills/`.
 
 ---
 
-## SEO
-
-**Detectar:** el usuario menciona SEO, meta tags, rankings
-
-| Skill | Path | Cuando priorizar |
-|---|---|---|
-| seo-audit | `~/.claude/skills/seo-audit/SKILL.md` | Auditorias o mejoras de SEO tecnico |
-
----
-
 ## Stack tipico — Next.js + TypeScript + Tailwind
 
 Para el stack mas comun, las skills minimas a cargar siempre son:

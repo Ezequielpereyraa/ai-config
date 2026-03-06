@@ -87,7 +87,6 @@ IMPORTANT: Detect context → read SKILL.md → THEN write code. Never skip this
 | Unit tests with Vitest | `~/.claude/skills/vitest/SKILL.md` |
 | Architecture refactors, Clean/Hexagonal/DDD | `~/.claude/skills/architecture-patterns/SKILL.md` |
 | Frontend architecture a escala, FSD, estructura de features | `~/.claude/skills/feature-slice/SKILL.md` |
-| SEO audit, meta tags, technical SEO | `~/.claude/skills/seo-audit/SKILL.md` |
 
 ### How to use skills
 
