@@ -84,9 +84,6 @@ IMPORTANT: Detect context → read SKILL.md → THEN write code. Never skip this
 | Next.js — routing, RSC, Server Actions, data fetching, performance | `~/.claude/skills/nextjs/SKILL.md` |
 | TypeScript types, interfaces, generics | `~/.claude/skills/typescript/SKILL.md` |
 | Tailwind classes, styling | `~/.claude/skills/tailwind-4/SKILL.md` |
-| Design systems, component libraries, design tokens | `~/.claude/skills/tailwind-design-system/SKILL.md` |
-| Zod schemas, validation | `~/.claude/skills/zod-4/SKILL.md` |
-| Zustand stores, global state | `~/.claude/skills/zustand-5/SKILL.md` |
 | Forms with react-hook-form | `~/.claude/skills/react-hook-form/SKILL.md` |
 | Client-side data fetching, TanStack Query, cache, mutations | `~/.claude/skills/tanstack-query-best-practices/SKILL.md` |
 | Framer Motion, animations, transitions | `~/.claude/skills/framer-motion/SKILL.md` |
@@ -95,9 +92,6 @@ IMPORTANT: Detect context → read SKILL.md → THEN write code. Never skip this
 | Firebase, Firestore, Firebase Auth, Cloud Storage | `~/.claude/skills/firebase/SKILL.md` |
 | Supabase, Supabase Auth, RLS, PostgreSQL via Supabase | `~/.claude/skills/supabase/SKILL.md` |
 | Unit tests with Vitest | `~/.claude/skills/vitest/SKILL.md` |
-| E2E tests with Playwright | `~/.claude/skills/playwright/SKILL.md` |
-| Django, DRF, Python API | `~/.claude/skills/django-drf/SKILL.md` |
-| Python tests with Pytest | `~/.claude/skills/pytest/SKILL.md` |
 | Architecture refactors, Clean/Hexagonal/DDD | `~/.claude/skills/architecture-patterns/SKILL.md` |
 | React QA, audit, performance review | `~/.claude/skills/react-doctor/SKILL.md` |
 | SEO audit, meta tags, technical SEO | `~/.claude/skills/seo-audit/SKILL.md` |

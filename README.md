@@ -115,13 +115,8 @@ git pull
 | `supabase` | Supabase, RLS, PostgreSQL via Supabase |
 | `tanstack-query-best-practices` | TanStack Query, data fetching, mutations |
 | `react-hook-form` | Formularios con React Hook Form |
-| `zustand-5` | Estado global con Zustand |
 | `framer-motion` | Animaciones, transiciones |
-| `zod-4` | Validacion de schemas con Zod |
 | `vitest` | Tests unitarios |
-| `playwright` | Tests E2E |
-| `django-drf` | Django REST Framework |
-| `pytest` | Tests de Python |
 | `architecture-patterns` | Refactors Clean/Hexagonal/DDD |
 | `react-doctor` | QA de React, audit, revision de performance |
 | `seo-audit` | SEO tecnico, meta tags |
