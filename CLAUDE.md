@@ -49,6 +49,7 @@ These apply always. Full examples in `~/.claude/skills/dev-pipeline/RULES.md`.
 - **Funciones siempre `const`** — nunca `function` keyword (ni componentes, ni handlers, ni utils)
 - **Props: `interface IXxxProps` fuera del componente**, exportable — nunca inline
 - **Componentes genéricos** — nombre describe QUÉ es, no DÓNDE se usa. Sin lógica de negocio adentro
+- **Exports de componentes** — siempre `export default` en el archivo del componente + `index.ts` que re-exporta con `export { default } from "./ComponentName"`. Nunca importar con el nombre repetido (`/UserCard/UserCard`)
 - **Separación estricta**: `components/` solo JSX · `hooks/` lógica stateful · `utils/` funciones puras · `services/` llamadas externas · `mappers/` API→dominio · `types/` interfaces
 - **Max ~100L por componente, ~150L por cualquier archivo** — si se pasa, extraer
 - **`const` siempre, `let` solo si el valor se reasigna inevitablemente**
