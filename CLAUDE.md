@@ -81,7 +81,7 @@ IMPORTANT: Detect context → read SKILL.md → THEN write code. Never skip this
 | Context | Read this file |
 | ------- | -------------- |
 | React components, hooks, JSX | `~/.claude/skills/react-19/SKILL.md` |
-| Next.js — routing, RSC, Server Actions, data fetching, performance | `~/.claude/skills/nextjs/SKILL.md` |
+| Next.js — routing, RSC, Server Actions, caching, performance, Next.js 15 | `~/.claude/skills/nextjs/SKILL.md` |
 | TypeScript types, interfaces, generics | `~/.claude/skills/typescript/SKILL.md` |
 | Tailwind classes, styling | `~/.claude/skills/tailwind-4/SKILL.md` |
 | Forms with react-hook-form | `~/.claude/skills/react-hook-form/SKILL.md` |

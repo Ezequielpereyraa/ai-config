@@ -1,37 +1,43 @@
 ---
 name: nextjs
 description: >
-  Next.js App Router patterns, RSC boundaries, data fetching, Server Actions, caching, performance.
+  Next.js App Router best practices, RSC boundaries, data fetching, Server Actions, caching, performance, and upgrade nudges.
   Trigger: When working with Next.js — routing, components, data, optimization.
 ---
 
-# Next.js — Patterns & Best Practices
+# Next.js — Senior Patterns & Best Practices
+
+> Assumes App Router. No Pages Router. No basics — only patterns that matter at scale.
 
 ## App Router File Conventions
 
 ```
 app/
-├── layout.tsx          # Root layout (required)
-├── page.tsx            # Route UI
-├── loading.tsx         # Suspense boundary
-├── error.tsx           # Error boundary ('use client')
-├── not-found.tsx       # 404
-├── (group)/            # Route group — no URL impact
+├── layout.tsx          # Root layout — persists across navigations
+├── page.tsx            # Route UI — Server Component by default
+├── loading.tsx         # Automatic Suspense boundary
+├── error.tsx           # Error boundary — requires 'use client'
+├── not-found.tsx       # 404 — triggered by notFound()
+├── middleware.ts       # Edge runtime — runs before every request
+├── (group)/            # Route group — no URL segment
 ├── [slug]/page.tsx     # Dynamic segment
-├── api/route.ts        # Route handler
-└── _components/        # Private — not routed
+├── [...slug]/page.tsx  # Catch-all segment
+├── api/route.ts        # Route handler — replaces API routes
+└── _components/        # Private — excluded from routing
 ```
 
-## Server vs Client — Decision
+## Server vs Client — Decision Rule
 
 ```
-Needs useState/useEffect/events? → 'use client'
-Needs browser APIs?              → 'use client'
-Just renders data?               → Server Component (default)
-Both?                            → Server parent + Client leaf
+Needs useState / useReducer?              → 'use client'
+Needs useEffect / lifecycle?              → 'use client'
+Needs browser APIs?                       → 'use client'
+Needs event handlers?                     → 'use client'
+Just renders data / async?                → Server Component (default)
+Both concerns?                            → Server parent + Client leaf
 ```
 
-**Rule:** Server Component by default. Add `'use client'` only when required. Never add it out of habit.
+**Never add `'use client'` out of habit. Push it to the leaves.**
 
 ## Data Fetching
 
@@ -39,23 +45,34 @@ Both?                            → Server parent + Client leaf
 // ✅ Parallel — never waterfall
 const [users, posts] = await Promise.all([getUsers(), getPosts()])
 
-// ✅ Streaming with Suspense
+// ✅ Start promises early, await late (avoids waterfall in component tree)
+const usersPromise = getUsers()
+const postsPromise = getPosts()
+const [users, posts] = await Promise.all([usersPromise, postsPromise])
+
+// ✅ Stream slow data — don't block the whole page
 <Suspense fallback={<Skeleton />}>
-  <SlowComponent />  {/* fetches independently */}
+  <SlowComponent />
 </Suspense>
 
-// ✅ Caching
-fetch(url)                          // static (cached)
-fetch(url, { next: { revalidate: 60 } })  // ISR
-fetch(url, { cache: 'no-store' })   // dynamic
+// ✅ fetch caching (Next.js 15: no longer cached by default)
+fetch(url)                                    // dynamic (no cache)
+fetch(url, { next: { revalidate: 60 } })      // ISR — revalidate every 60s
+fetch(url, { cache: 'force-cache' })          // static — explicit opt-in
+
+// ✅ React.cache() for per-request deduplication
+import { cache } from 'react'
+export const getUser = cache(async (id: string) => db.users.findUnique({ where: { id } }))
 ```
+
+> **Nudge:** Sequential `await` inside a component = waterfall. Always check if fetches are independent and parallelize them.
 
 ## Server Actions
 
 ```typescript
 // app/actions.ts
 'use server'
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, revalidateTag } from 'next/cache'
 
 export const createItem = async (formData: FormData) => {
   const name = formData.get('name') as string
@@ -63,91 +80,130 @@ export const createItem = async (formData: FormData) => {
   revalidatePath('/items')
 }
 
-// Usage — no API route needed
-<form action={createItem}>
-  <input name="name" />
-  <button type="submit">Create</button>
-</form>
+// With useActionState (React 19)
+'use client'
+import { useActionState } from 'react'
+
+const Form = () => {
+  const [state, action, isPending] = useActionState(createItem, null)
+  return (
+    <form action={action}>
+      <input name="name" required />
+      <button disabled={isPending}>{isPending ? 'Saving...' : 'Save'}</button>
+    </form>
+  )
+}
 ```
 
-## Async APIs (Next.js 15+)
+> **Nudge:** If using an API route just for a mutation from the same app, replace with a Server Action.
+
+## Next.js 15 — Breaking Changes
 
 ```typescript
-// params and searchParams are now async
+// params and searchParams are now async (BREAKING)
 export default async function Page({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  // ...
 }
 
-// cookies and headers are also async
+export default async function Page({ searchParams }: { searchParams: Promise<{ q: string }> }) {
+  const { q } = await searchParams
+}
+
+// cookies, headers, draftMode are now async (BREAKING)
 import { cookies, headers } from 'next/headers'
 const cookieStore = await cookies()
 const headersList = await headers()
+
+// fetch() is no longer cached by default (BREAKING)
+// Explicit opt-in required: cache: 'force-cache' or next: { revalidate }
 ```
 
-## Route Handlers
+## Middleware
 
 ```typescript
-// app/api/items/route.ts
-export const GET = async (request: NextRequest) => {
-  const items = await db.items.findMany()
-  return NextResponse.json(items)
+// middleware.ts — root level, runs at Edge
+import { NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
+
+export const middleware = (request: NextRequest) => {
+  const token = request.cookies.get('token')
+  if (!token && request.nextUrl.pathname.startsWith('/dashboard')) {
+    return NextResponse.redirect(new URL('/login', request.url))
+  }
+  return NextResponse.next()
 }
 
-export const POST = async (request: NextRequest) => {
-  const body = await request.json()
-  const item = await db.items.create({ data: body })
-  return NextResponse.json(item, { status: 201 })
+export const config = {
+  matcher: ['/dashboard/:path*', '/api/:path*'],
 }
 ```
 
-## Performance — Critical Rules
+> **Nudge:** Middleware runs on every request — keep it fast. No DB calls, no heavy computation. Use it for auth redirects, A/B flags, locale detection.
 
-**Eliminate waterfalls (CRITICAL)**
-- `Promise.all()` for independent fetches
-- Start promises early, await late
-- Use Suspense to stream content — don't block entire page
-
-**Bundle size (CRITICAL)**
-- `dynamic()` for heavy client components
-- Import directly — avoid barrel files (`import { fn } from 'lib'` not `import * from 'lib/index'`)
-- Load analytics/third-party after hydration
-
-**Server-side (HIGH)**
-- `React.cache()` for per-request deduplication
-- Minimize data passed to client components (serialize only what's needed)
-- Restructure components to parallelize fetches — don't fetch sequentially in tree
-
-## Image & Navigation
+## Metadata
 
 ```typescript
+// Static
+export const metadata = {
+  title: 'My App',
+  description: 'Description',
+  openGraph: { title: 'My App', images: ['/og.png'] },
+}
+
+// Dynamic — colocated with the page
+export const generateMetadata = async ({ params }: { params: Promise<{ id: string }> }) => {
+  const { id } = await params
+  const product = await getProduct(id)
+  return { title: product.name, description: product.description }
+}
+```
+
+## Performance — Non-Negotiable
+
+```typescript
+// ✅ dynamic() for heavy client components
+import dynamic from 'next/dynamic'
+const HeavyChart = dynamic(() => import('./HeavyChart'), { ssr: false })
+
+// ✅ next/image — never <img>
 import Image from 'next/image'
-import Link from 'next/link'
-
-// ✅ Always next/image — never <img>
 <Image src="/hero.jpg" alt="..." width={800} height={600} priority />
 
-// ✅ Always next/link for internal navigation
-<Link href="/dashboard">Dashboard</Link>
-```
+// ✅ next/link — never <a> for internal navigation
+import Link from 'next/link'
+<Link href="/dashboard" prefetch>Dashboard</Link>
 
-## server-only
-
-```typescript
+// ✅ server-only — guard against accidental client imports
 import 'server-only'
-// Throws at build if imported in a client component
 export const getSecret = async () => db.secrets.findMany()
+
+// ✅ Direct imports — never barrel files for heavy libs
+import { format } from 'date-fns/format'  // not: import { format } from 'date-fns'
 ```
 
-## Anti-patterns
+## Caching Strategy
 
-| ❌ Don't | ✅ Do |
-|----------|-------|
-| `'use client'` by default | Server Component unless needed |
-| Sequential awaits in components | `Promise.all()` |
-| Barrel file imports | Direct imports |
-| `useEffect` for data fetch | Server Components or TanStack Query |
-| `<img>` tags | `next/image` |
-| Hardcoded `href` strings | `next/link` |
-| Global state for server data | Next.js cache + `revalidate` |
-| Skip loading.tsx | Always add Suspense boundaries |
+| Pattern | Use case |
+|---|---|
+| `fetch` with `force-cache` | Static content, rarely changes |
+| `fetch` with `revalidate: N` | ISR — periodically fresh |
+| `fetch` default (no cache) | Dynamic — user-specific |
+| `revalidatePath('/path')` | On-demand after mutation |
+| `revalidateTag('tag')` | Targeted cache invalidation |
+| `React.cache()` | Deduplicate within a single request |
+
+## Upgrade Nudges — Patterns to Flag
+
+| If you see this | Suggest this |
+|---|---|
+| `useEffect` for data fetch | Server Component or TanStack Query |
+| `fetch` in `useEffect` | Move to Server Component |
+| API route for same-app mutation | Server Action |
+| `<img>` tag | `next/image` |
+| `<a>` for internal link | `next/link` |
+| `'use client'` on a page/layout | Push client boundary down to leaf |
+| Sequential `await` on independent fetches | `Promise.all()` |
+| `params.id` without awaiting (Next.js 15) | `const { id } = await params` |
+| Barrel file imports from large libs | Direct subpath import |
+| No `loading.tsx` on slow routes | Add Suspense / loading.tsx |
+| `getServerSideProps` / `getStaticProps` | Migrate to App Router RSC |
