@@ -1,6 +1,6 @@
-# Catálogo de skills disponibles
+# Catalogo de skills disponibles
 
-Referencia para la Fase 0 del pipeline. Mapeá las dependencias del `package.json` a las skills correspondientes y leé los archivos indicados.
+Referencia para la Fase 0 del pipeline. Mapea las dependencias del `package.json` a las skills correspondientes y lee los archivos indicados.
 
 Todos los paths apuntan a `~/.claude/skills/`.
 
@@ -10,9 +10,9 @@ Todos los paths apuntan a `~/.claude/skills/`.
 
 **Detectar:** `"next"` en dependencies o devDependencies
 
-| Skill | Path | Cuándo priorizar |
+| Skill | Path | Cuando priorizar |
 |---|---|---|
-| nextjs | `~/.claude/skills/nextjs/SKILL.md` | Siempre con Next.js |
+| nextjs | `~/.claude/skills/nextjs/SKILL.md` | Siempre con Next.js — incluye patrones de Next 15 |
 
 ---
 
@@ -20,13 +20,11 @@ Todos los paths apuntan a `~/.claude/skills/`.
 
 **Detectar:** `"react"` en dependencies
 
-| Skill | Path | Cuándo priorizar |
+| Skill | Path | Cuando priorizar |
 |---|---|---|
-| react-19 | `~/.claude/skills/react-19/SKILL.md` | Si la versión de React es >= 19 |
-| vercel-react-best-practices | `~/.claude/skills/vercel-react-best-practices/SKILL.md` | Para optimización y performance |
-| react-doctor | `~/.claude/skills/react-doctor/SKILL.md` | En fases de QA o auditoría |
+| react-19 | `~/.claude/skills/react-19/SKILL.md` | Si la version de React es >= 19 |
 
-> Si el proyecto usa Next.js, React siempre aplica también.
+> Si el proyecto usa Next.js, React siempre aplica tambien.
 
 ---
 
@@ -34,7 +32,7 @@ Todos los paths apuntan a `~/.claude/skills/`.
 
 **Detectar:** `"typescript"` o cualquier `"@types/*"` en devDependencies
 
-| Skill | Path | Cuándo priorizar |
+| Skill | Path | Cuando priorizar |
 |---|---|---|
 | typescript | `~/.claude/skills/typescript/SKILL.md` | Siempre que haya TypeScript |
 
@@ -44,30 +42,9 @@ Todos los paths apuntan a `~/.claude/skills/`.
 
 **Detectar:** `"tailwindcss"` en dependencies o devDependencies
 
-| Skill | Path | Cuándo priorizar |
+| Skill | Path | Cuando priorizar |
 |---|---|---|
-| tailwind-4 | `~/.claude/skills/tailwind-4/SKILL.md` | Si la versión es >= 4 |
-| tailwind-design-system | `~/.claude/skills/tailwind-design-system/SKILL.md` | Para sistemas de diseño o componentes de UI |
-
----
-
-## Validación de datos
-
-**Detectar:** `"zod"` en dependencies
-
-| Skill | Path | Cuándo priorizar |
-|---|---|---|
-| zod-4 | `~/.claude/skills/zod-4/SKILL.md` | Siempre que haya Zod |
-
----
-
-## Estado global
-
-**Detectar:** `"zustand"` en dependencies
-
-| Skill | Path | Cuándo priorizar |
-|---|---|---|
-| zustand-5 | `~/.claude/skills/zustand-5/SKILL.md` | Cuando la tarea toque stores o estado global |
+| tailwind-4 | `~/.claude/skills/tailwind-4/SKILL.md` | Si la version es >= 4 |
 
 ---
 
@@ -75,29 +52,19 @@ Todos los paths apuntan a `~/.claude/skills/`.
 
 **Detectar:** `"react-hook-form"` en dependencies
 
-| Skill | Path | Cuándo priorizar |
+| Skill | Path | Cuando priorizar |
 |---|---|---|
 | react-hook-form | `~/.claude/skills/react-hook-form/SKILL.md` | Siempre que haya formularios |
 
 ---
 
-## Testing frontend
+## Testing unitario
 
 **Detectar:** `"vitest"` o `"@vitest/*"` en devDependencies
 
-| Skill | Path | Cuándo priorizar |
+| Skill | Path | Cuando priorizar |
 |---|---|---|
 | vitest | `~/.claude/skills/vitest/SKILL.md` | Cuando la tarea incluya tests unitarios |
-
----
-
-## E2E Testing
-
-**Detectar:** `"@playwright/test"` o `"playwright"` en devDependencies
-
-| Skill | Path | Cuándo priorizar |
-|---|---|---|
-| playwright | `~/.claude/skills/playwright/SKILL.md` | Cuando la tarea incluya tests E2E |
 
 ---
 
@@ -105,7 +72,7 @@ Todos los paths apuntan a `~/.claude/skills/`.
 
 **Detectar:** `"framer-motion"` o `"motion"` en dependencies
 
-| Skill | Path | Cuándo priorizar |
+| Skill | Path | Cuando priorizar |
 |---|---|---|
 | framer-motion | `~/.claude/skills/framer-motion/SKILL.md` | Cuando la tarea incluya animaciones o transiciones |
 
@@ -115,9 +82,9 @@ Todos los paths apuntan a `~/.claude/skills/`.
 
 **Detectar:** `"@tanstack/react-query"` o `"react-query"` en dependencies
 
-| Skill | Path | Cuándo priorizar |
+| Skill | Path | Cuando priorizar |
 |---|---|---|
-| tanstack-query-best-practices | `~/.claude/skills/tanstack-query-best-practices/SKILL.md` | Para hooks de data fetching, caché, mutaciones |
+| tanstack-query-best-practices | `~/.claude/skills/tanstack-query-best-practices/SKILL.md` | Para hooks de data fetching, cache, mutaciones |
 
 ---
 
@@ -125,29 +92,9 @@ Todos los paths apuntan a `~/.claude/skills/`.
 
 **Detectar:** `"ai"` o `"@ai-sdk/*"` en dependencies
 
-| Skill | Path | Cuándo priorizar |
+| Skill | Path | Cuando priorizar |
 |---|---|---|
 | ai-sdk-5 | `~/.claude/skills/ai-sdk-5/SKILL.md` | Para features de IA, streaming, chat |
-
----
-
-## Firebase
-
-**Detectar:** `"firebase"` o `"firebase-admin"` en dependencies
-
-| Skill | Path | Cuándo priorizar |
-|---|---|---|
-| firebase | `~/.claude/skills/firebase/SKILL.md` | Siempre que haya Firebase/Firestore |
-
----
-
-## Supabase
-
-**Detectar:** `"@supabase/supabase-js"` o `"@supabase/ssr"` en dependencies
-
-| Skill | Path | Cuándo priorizar |
-|---|---|---|
-| supabase | `~/.claude/skills/supabase/SKILL.md` | Siempre que haya Supabase |
 
 ---
 
@@ -155,30 +102,19 @@ Todos los paths apuntan a `~/.claude/skills/`.
 
 **Detectar:** `"@nestjs/core"` en dependencies
 
-| Skill | Path | Cuándo priorizar |
+| Skill | Path | Cuando priorizar |
 |---|---|---|
 | nestjs | `~/.claude/skills/nestjs/SKILL.md` | Siempre que haya NestJS |
 
 ---
 
-## Backend Python / Django
-
-**Detectar:** `django` o `djangorestframework` en requirements.txt
-
-| Skill | Path | Cuándo priorizar |
-|---|---|---|
-| django-drf | `~/.claude/skills/django-drf/SKILL.md` | Para endpoints DRF, ViewSets, serializers |
-| pytest | `~/.claude/skills/pytest/SKILL.md` | Para tests Python |
-
----
-
 ## Arquitectura
 
-**Detectar:** proyectos con estructura de módulos compleja, monorepos, o cuando la tarea es un refactor de arquitectura
+**Detectar:** proyectos con estructura de modulos compleja, monorepos, o cuando la tarea es un refactor de arquitectura
 
-| Skill | Path | Cuándo priorizar |
+| Skill | Path | Cuando priorizar |
 |---|---|---|
-| architecture-patterns | `~/.claude/skills/architecture-patterns/SKILL.md` | Refactors de arquitectura, diseño de módulos |
+| architecture-patterns | `~/.claude/skills/architecture-patterns/SKILL.md` | Refactors de arquitectura, diseno de modulos |
 
 ---
 
@@ -186,26 +122,25 @@ Todos los paths apuntan a `~/.claude/skills/`.
 
 **Detectar:** el usuario menciona SEO, meta tags, rankings
 
-| Skill | Path | Cuándo priorizar |
+| Skill | Path | Cuando priorizar |
 |---|---|---|
-| seo-audit | `~/.claude/skills/seo-audit/SKILL.md` | Auditorías o mejoras de SEO técnico |
+| seo-audit | `~/.claude/skills/seo-audit/SKILL.md` | Auditorias o mejoras de SEO tecnico |
 
 ---
 
-## Stack típico — Next.js + TypeScript + Tailwind
+## Stack tipico — Next.js + TypeScript + Tailwind
 
-Para el stack más común, las skills mínimas a cargar siempre son:
+Para el stack mas comun, las skills minimas a cargar siempre son:
 
 1. `~/.claude/skills/nextjs/SKILL.md`
 2. `~/.claude/skills/react-19/SKILL.md`
 3. `~/.claude/skills/typescript/SKILL.md`
 4. `~/.claude/skills/tailwind-4/SKILL.md`
 
-Agregar según lo que se detecte adicionalmente:
-- `zod-4`, `react-hook-form` → si hay formularios
+Agregar segun lo que se detecte adicionalmente:
+- `react-hook-form` → si hay formularios
 - `tanstack-query-best-practices` → si hay data fetching cliente
 - `framer-motion` → si hay animaciones
-- `zustand-5` → si hay estado global
 - `vitest` → si hay tests unitarios
-- `playwright` → si hay tests E2E
-- `ai-sdk-5` → si hay integración de IA
+- `ai-sdk-5` → si hay integracion de IA
+- `nestjs` → si hay backend NestJS

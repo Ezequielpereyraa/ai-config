@@ -111,14 +111,11 @@ git pull
 | `typescript` | Tipos, interfaces, generics |
 | `tailwind-4` | Clases de Tailwind |
 | `nestjs` | Modulos, controllers, services, guards, DTOs de NestJS |
-| `firebase` | Firebase, Firestore, Auth, Storage |
-| `supabase` | Supabase, RLS, PostgreSQL via Supabase |
 | `tanstack-query-best-practices` | TanStack Query, data fetching, mutations |
 | `react-hook-form` | Formularios con React Hook Form |
 | `framer-motion` | Animaciones, transiciones |
 | `vitest` | Tests unitarios |
 | `architecture-patterns` | Refactors Clean/Hexagonal/DDD |
-| `react-doctor` | QA de React, audit, revision de performance |
 | `seo-audit` | SEO tecnico, meta tags |
 
 ## Requisitos

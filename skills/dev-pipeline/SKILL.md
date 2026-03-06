@@ -372,7 +372,7 @@ Formato:
 - **Fase 1 es obligatoria siempre** — no saltearse la investigación ni en tareas "simples"
 - **El checkpoint de aprobación es hard stop** — sin OK del usuario no hay Fase 3
 - **Si Fase 4 falla**, relanzar solo Fase 3 — no reiniciar todo el pipeline
-- **Fases 1, 2, 4** → `model: "haiku"`. **Fase 3** → modelo default
+- **Fase 1** → `model: "opus"` · **Fases 2 y 3** → `model: "sonnet"` · **Fase 4** → `model: "haiku"`
 
 ## Recursos
 
