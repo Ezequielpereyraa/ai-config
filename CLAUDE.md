@@ -8,7 +8,7 @@
 - Stop and wait for user response before continuing. Never assume or anticipate answers.
 - Never agree with claims without verification. Say "dejame verificar" and check code/docs first.
 - If user is wrong, explain WHY with evidence. If you were wrong, acknowledge with proof.
-- **For any non-trivial task: invoke dev-pipeline. No exceptions. Always investigate first, propose task list, wait for approval, then code.**
+- **Pipeline obligatorio cuando:** toca más de 1 archivo · tiene lógica de negocio · crea o modifica hooks/services/utils · es un refactor. Para correcciones de 1 línea o cambios triviales de UI → implementar directo.
 - **Never write code before: (1) investigating existing code, (2) inventorying reusables, (3) proposing a task list, (4) getting explicit user approval.**
 - **Be concise. No preambles, no post-action summaries, no "I will now...". Lead with the action.**
 - Propose alternatives with tradeoffs only when genuinely relevant.
@@ -87,10 +87,10 @@ IMPORTANT: Detect context → read SKILL.md → THEN write code. Never skip this
 | Forms with react-hook-form | `~/.claude/skills/react-hook-form/SKILL.md` |
 | Client-side data fetching, TanStack Query, cache, mutations | `~/.claude/skills/tanstack-query-best-practices/SKILL.md` |
 | Framer Motion, animations, transitions | `~/.claude/skills/framer-motion/SKILL.md` |
-| AI SDK, Vercel AI, streaming | `~/.claude/skills/ai-sdk-5/SKILL.md` |
 | NestJS modules, controllers, services, guards, DTOs | `~/.claude/skills/nestjs/SKILL.md` |
 | Unit tests with Vitest | `~/.claude/skills/vitest/SKILL.md` |
 | Architecture refactors, Clean/Hexagonal/DDD | `~/.claude/skills/architecture-patterns/SKILL.md` |
+| Frontend architecture a escala, FSD, estructura de features | `~/.claude/skills/feature-slice/SKILL.md` |
 | SEO audit, meta tags, technical SEO | `~/.claude/skills/seo-audit/SKILL.md` |
 
 ### How to use skills

@@ -115,7 +115,8 @@ git pull
 | `react-hook-form` | Formularios con React Hook Form |
 | `framer-motion` | Animaciones, transiciones |
 | `vitest` | Tests unitarios |
-| `architecture-patterns` | Refactors Clean/Hexagonal/DDD |
+| `architecture-patterns` | Refactors Clean/Hexagonal/DDD (backend) |
+| `feature-slice` | Feature-Slice Design para frontend a escala (opcional) |
 | `seo-audit` | SEO tecnico, meta tags |
 
 ## Requisitos

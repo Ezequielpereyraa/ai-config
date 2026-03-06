@@ -88,16 +88,6 @@ Todos los paths apuntan a `~/.claude/skills/`.
 
 ---
 
-## AI / Vercel AI SDK
-
-**Detectar:** `"ai"` o `"@ai-sdk/*"` en dependencies
-
-| Skill | Path | Cuando priorizar |
-|---|---|---|
-| ai-sdk-5 | `~/.claude/skills/ai-sdk-5/SKILL.md` | Para features de IA, streaming, chat |
-
----
-
 ## NestJS
 
 **Detectar:** `"@nestjs/core"` en dependencies
@@ -108,13 +98,23 @@ Todos los paths apuntan a `~/.claude/skills/`.
 
 ---
 
-## Arquitectura
+## Arquitectura backend
 
-**Detectar:** proyectos con estructura de modulos compleja, monorepos, o cuando la tarea es un refactor de arquitectura
+**Detectar:** proyectos con estructura de modulos compleja, monorepos, o cuando la tarea es un refactor de arquitectura backend
 
 | Skill | Path | Cuando priorizar |
 |---|---|---|
-| architecture-patterns | `~/.claude/skills/architecture-patterns/SKILL.md` | Refactors de arquitectura, diseno de modulos |
+| architecture-patterns | `~/.claude/skills/architecture-patterns/SKILL.md` | Refactors de arquitectura, diseno de modulos NestJS, Clean/Hexagonal/DDD |
+
+---
+
+## Arquitectura frontend
+
+**Detectar:** el usuario menciona FSD, Feature-Slice, o hay acoplamiento entre features en un proyecto frontend grande (10+ features)
+
+| Skill | Path | Cuando priorizar |
+|---|---|---|
+| feature-slice | `~/.claude/skills/feature-slice/SKILL.md` | Solo cuando el usuario lo pide explicitamente o hay un problema real de escala frontend. NO sugerir como default. |
 
 ---
 
@@ -142,5 +142,4 @@ Agregar segun lo que se detecte adicionalmente:
 - `tanstack-query-best-practices` → si hay data fetching cliente
 - `framer-motion` → si hay animaciones
 - `vitest` → si hay tests unitarios
-- `ai-sdk-5` → si hay integracion de IA
 - `nestjs` → si hay backend NestJS
