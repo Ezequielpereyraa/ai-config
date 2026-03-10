@@ -36,7 +36,7 @@ No esta disenado para principiantes. Claude esta configurado para hacer push bac
 - Sin `"use client"` por defecto — Server Component primero
 - `export default` por archivo de componente + re-export en `index.ts` — sin imports con nombre repetido
 
-## Como instalar
+## Como instalar y actualizar
 
 Requiere [Claude Code](https://docs.anthropic.com/en/docs/claude-code) instalado.
 
@@ -45,18 +45,9 @@ Requiere [Claude Code](https://docs.anthropic.com/en/docs/claude-code) instalado
 ```bash
 git clone https://github.com/Ezequielpereyraa/ai-config.git ~/ai-config
 cd ~/ai-config
-chmod +x install.sh
-./install.sh
+chmod +x ai.sh
+./ai.sh install
 ```
-
-Crea symlinks desde `~/.claude/` a este repo:
-
-| Symlink | Fuente |
-|---|---|
-| `~/.claude/CLAUDE.md` | `ai-config/CLAUDE.md` |
-| `~/.claude/settings.json` | `ai-config/settings.json` |
-| `~/.claude/statusline.sh` | `ai-config/statusline.sh` |
-| `~/.claude/skills/` | `ai-config/skills/` |
 
 ### Windows
 
@@ -66,13 +57,11 @@ cd ~/ai-config
 .\install.ps1
 ```
 
-El script intenta crear symlinks primero. Si no puede (sin permisos), copia los archivos como fallback.
+El script de Windows intenta crear symlinks primero. Si no puede (sin permisos), copia los archivos como fallback.
 
-**Para tener symlinks en Windows** (recomendado — permite actualizar con solo `git pull`):
+**Para tener symlinks en Windows** (recomendado):
 - Ir a **Configuracion → Para desarrolladores** y activar **Modo desarrollador**, o
 - Ejecutar PowerShell como Administrador
-
-**Sin symlinks**, los archivos se copian. Para sincronizar cambios futuros, volver a ejecutar `.\install.ps1`.
 
 ---
 
@@ -80,25 +69,22 @@ Los archivos existentes se respaldan con sufijo `.backup` antes de ser reemplaza
 
 Reinicia Claude Code despues de instalar para que los cambios tomen efecto.
 
-## Como actualizar
+## CLI — ai.sh
 
-### Linux / macOS (o Windows con symlinks)
-
-Un `git pull` es suficiente — no hace falta reinstalar. Como los archivos en `~/.claude/` son symlinks que apuntan al repo, el pull se refleja automaticamente:
+Punto de entrada unificado para instalar y actualizar todo:
 
 ```bash
-cd ~/ai-config && git pull
+./ai.sh install           # instala todo (claude + cursor)
+./ai.sh install claude    # solo claude
+./ai.sh install cursor    # solo cursor
+
+./ai.sh update            # git pull + sincroniza todo
+./ai.sh update claude     # git pull + solo claude
+./ai.sh update cursor     # git pull + solo cursor
 ```
 
-### Windows (sin symlinks)
-
-Pull y volver a ejecutar el script:
-
-```powershell
-cd ~/ai-config
-git pull
-.\install.ps1
-```
+**Por que re-ejecutar en vez de solo `git pull`:**
+Las skills existentes se actualizan solas (son symlinks). Pero si se agrega una skill nueva al repo, hay que re-ejecutar el script para crear el symlink correspondiente. `./ai.sh update` hace el pull y la sincronizacion en un solo paso.
 
 ## Skills incluidos
 
@@ -114,6 +100,10 @@ git pull
 | `vitest` | Tests unitarios |
 | `architecture-patterns` | Refactors Clean/Hexagonal/DDD (backend) |
 | `feature-slice` | Feature-Slice Design para frontend a escala (opcional) |
+
+## Cursor — nota sobre Global Rules
+
+Las Global Rules de Cursor son el único paso manual que el CLI no puede automatizar. Si las modificás en el repo, hay que copiar el contenido de `cursor/global-rules.md` y pegarlo en Cursor → Settings → General → Rules for AI.
 
 ## Requisitos
 
