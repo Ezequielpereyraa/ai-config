@@ -23,6 +23,10 @@ Before implementing any non-trivial task, read the relevant skill files from `~/
 | Any feature, refactor, multi-file task | `~/.cursor/skills/dev-pipeline/SKILL.md` |
 | "how does X work?", "explain this flow" | `~/.cursor/skills/code-investigator/SKILL.md` |
 | Project structure, folder conventions | `~/.cursor/skills/project-conventions/SKILL.md` |
+| Any UI component, layout, styling task | `~/.cursor/skills/ui-design/SKILL.md` |
+| `/design-init` — generate DESIGN.md | `~/.cursor/skills/design-init/SKILL.md` |
+
+**Design rule:** Before writing any style class, check if `.cursor/DESIGN.md` exists in the project. If it does → read it. If not → suggest `/design-init`.
 
 **Non-trivial = touches more than 1 file, has business logic, creates/modifies hooks/services/utils, or is a refactor.**
 For single-line fixes or trivial UI changes → implement directly.

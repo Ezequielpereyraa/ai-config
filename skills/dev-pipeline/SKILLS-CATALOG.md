@@ -88,6 +88,19 @@ Todos los paths apuntan a `~/.claude/skills/`.
 
 ---
 
+## UI/UX Design
+
+**Detectar:** tarea incluye componentes UI, layouts, estilos, mejoras visuales, o el usuario corre `/design-init`
+
+| Skill | Path | Cuando priorizar |
+|---|---|---|
+| ui-design | `~/.claude/skills/ui-design/SKILL.md` | Siempre que haya trabajo de UI — leer antes de escribir cualquier clase |
+| design-init | `~/.claude/skills/design-init/SKILL.md` | Solo cuando el usuario ejecuta `/design-init` |
+
+> Si el proyecto tiene `.claude/DESIGN.md` → leerlo siempre junto con `ui-design` antes de tocar estilos.
+
+---
+
 ## Stack tipico — Next.js + TypeScript + Tailwind
 
 Para el stack mas comun, las skills minimas a cargar siempre son:

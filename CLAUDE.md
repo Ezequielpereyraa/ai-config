@@ -88,6 +88,15 @@ IMPORTANT: Detect context → read SKILL.md → THEN write code. Never skip this
 | Architecture refactors, Clean/Hexagonal/DDD | `~/.claude/skills/architecture-patterns/SKILL.md` |
 | Frontend architecture a escala, FSD, estructura de features | `~/.claude/skills/feature-slice/SKILL.md` |
 
+### Design
+
+| Context | Read this file |
+| ------- | -------------- |
+| Cualquier componente UI, layout, tarea de estilos, mejora visual | `~/.claude/skills/ui-design/SKILL.md` |
+| `/design-init` — generar DESIGN.md del proyecto | `~/.claude/skills/design-init/SKILL.md` |
+
+**Regla critica de UI:** Antes de escribir cualquier clase de estilo, verificar si existe `.claude/DESIGN.md` en el proyecto. Si existe → leerlo. Si no existe → sugerir `/design-init`.
+
 ### How to use skills
 
 1. Detect context from user request or current file
