@@ -1,6 +1,6 @@
 ---
 name: dev-pipeline
-description: Pipeline de desarrollo multi-agente de 5 fases. Usar cuando el usuario pida implementar una feature, componente, refactor o cualquier tarea de programación no trivial. Investiga primero, propone lista de tareas, espera aprobación, luego implementa.
+description: Pipeline de desarrollo con routing automático FULL/LITE. Usar cuando el usuario pida implementar una feature, componente, refactor o cualquier tarea de programación no trivial. Investiga primero, propone spec/plan/tareas según complejidad, espera aprobación, luego implementa.
 ---
 
 # Dev Pipeline — Orquestador multi-agente
@@ -12,12 +12,13 @@ El agente principal **solo orquesta** — no implementa directamente.
 ## Cuándo aplicar
 
 **Pipeline obligatorio cuando:**
+
 - Toca más de 1 archivo
 - Tiene lógica de negocio
 - Crea o modifica hooks / services / utils
 - Es un refactor
 
-**Implementar directo** (sin pipeline) cuando: corrección de 1 línea, cambio trivial de UI sin lógica, rename puntual.
+**Implementar directo** (sin pipeline): corrección de 1 línea, cambio trivial de UI sin lógica, rename puntual.
 
 ---
 
@@ -27,246 +28,391 @@ El agente principal **solo orquesta** — no implementa directamente.
 Tarea del usuario
     │
     ▼
-Fase 0: Stack detection + carga de skills (orquestador · directo)
+Fase 0: Stack detection + routing FULL/LITE
     │
-    ▼
-Fase 1: Investigación (Explore · opus)
-    │  Entiende lógica de negocio, mapea reutilizables, detecta mejoras
-    ▼
-Fase 2: Plan + lista de tareas (general-purpose · sonnet)
-    │  Genera checklist priorizado con decisiones de diseño
-    ▼
-⏸️  PAUSA — El orquestador presenta la lista al usuario y espera aprobación
-    │  El usuario puede aprobar, ajustar o pedir más investigación
-    ▼
-Fase 3: Implementación (general-purpose · sonnet)
-    │  Ejecuta exactamente lo aprobado · batching si hay +5 archivos
-    ▼
-Fase 4: QA Mecánico (general-purpose · haiku)
-    │  Lints, tsc, convenciones, completitud
-    ▼
-Fase 5: QA Negocio (general-purpose · sonnet)
-       Lógica de negocio, edge cases, reutilización, performance
+    ├─── FULL ──────────────────────────────┐
+    │                                       │
+    ▼                                       ▼
+Fase 0.5: Spec funcional              Fase 1 LITE: Scan rápido
+⏸ Pausa — aprobación spec                  │
+    │                                       ▼
+    ▼                               Fase 2 LITE: Plan + Tasks
+Fase 1 FULL: Investigación          ⏸ Pausa — aprobación
+    │                                       │
+    ▼                                       │
+Fase 2 FULL: Plan + Tasks                  │
+⏸ Pausa — aprobación                       │
+    │                                       │
+    └───────────────────┬───────────────────┘
+                        │
+                        ▼
+                Fase 3: Implementación
+                        │
+                        ▼
+                Fase 4: QA Mecánico
+                        │
+                FULL ───┤
+                        ▼
+                Fase 5: QA Negocio (solo FULL)
 ```
 
 ---
 
 ## Modelos por fase
 
-| Fase | Modelo | Por qué |
-|------|--------|---------|
-| Fase 1 — Investigación | **`opus`** | La fase más crítica. Lee código real, entiende lógica de negocio implícita, detecta patrones sutiles. Si Fase 1 falla, todo lo que sigue falla. Vale el costo — es read-only. |
-| Fase 2 — Plan | **`sonnet`** | Necesita buen razonamiento para validar y estructurar. El análisis duro ya lo hizo Opus. Sonnet procesa ese output y genera el checklist. |
-| Fase 3 — Implementación | **`sonnet`** | Generación de código de alta calidad siguiendo un plan explícito y aprobado. |
-| Fase 4 — QA Mecánico | **`haiku`** | Verificación estructurada contra checklist, lints determinísticos, convenciones. Tarea mecánica, no requiere razonamiento complejo. |
-| Fase 5 — QA Negocio | **`sonnet`** | Revisión semántica: lógica de negocio, edge cases, reutilización. Requiere razonamiento — haiku no puede hacer esto bien. |
+| Fase                        | Modelo       | Por qué                                                                         |
+| --------------------------- | ------------ | ------------------------------------------------------------------------------- |
+| Fase 0 — Routing            | **`haiku`**  | Evaluación estructurada con criterios fijos — no necesita razonamiento complejo |
+| Fase 0.5 — Spec (FULL)      | **`sonnet`** | Razonamiento funcional, sin necesidad de leer codebase                          |
+| Fase 1 FULL — Investigación | **`sonnet`** | Scope acotado por el spec — no necesita opus                                    |
+| Fase 1 LITE — Scan          | **`haiku`**  | Solo reutilizables y archivos afectados                                         |
+| Fase 2 — Plan + Tasks       | **`sonnet`** | Razonamiento estructurado sobre output anterior                                 |
+| Fase 3 — Implementación     | **`sonnet`** | Generación de código sobre plan aprobado                                        |
+| Fase 4 — QA Mecánico        | **`haiku`**  | Checks determinísticos, no requiere razonamiento                                |
+| Fase 5 — QA Negocio (FULL)  | **`sonnet`** | Revisión semántica de lógica de negocio                                         |
 
-## Herramientas del orquestador
-
-| Propósito | Herramienta |
-|-----------|-------------|
-| Fase 1 — Investigación | `Agent` con `subagent_type: "Explore"`, `model: "opus"` |
-| Fase 2 — Plan | `Agent` con `subagent_type: "general-purpose"`, `model: "sonnet"` |
-| Fase 3 — Implementación | `Agent` con `subagent_type: "general-purpose"`, `model: "sonnet"` |
-| Fase 4 — QA Mecánico | `Agent` con `subagent_type: "general-purpose"`, `model: "haiku"` |
-| Fase 5 — QA Negocio | `Agent` con `subagent_type: "general-purpose"`, `model: "sonnet"` |
-| Registrar y trackear fases | `TaskCreate` + `TaskUpdate` |
-| Linting en QA | `Bash(npx eslint --format=compact <archivos>)` y `Bash(npx tsc --noEmit)` |
+**Nota sobre aliases:** Usá `sonnet` y `haiku` sin versión — se resuelven siempre al modelo más reciente disponible en tu cuenta. Solo hardcodeá model strings (`claude-sonnet-4-6`) si necesitás reproducibilidad exacta entre sesiones.
 
 ---
 
-## Fase 0 — Stack detection y carga de skills
+## Fase 0 — Stack detection + routing
 
-**Ejecutado por el orquestador directamente.**
+**Routing:** `haiku` · El resto lo ejecuta el orquestador directamente.
 
-### 1 — Registrar las 5 fases con TaskCreate
+### 1 — Registrar fases según path (después del routing)
+
+FULL:
 
 ```
+TaskCreate: "Fase 0.5 — Spec funcional"
 TaskCreate: "Fase 1 — Investigación"
-TaskCreate: "Fase 2 — Plan y lista de tareas"
+TaskCreate: "Fase 2 — Plan y tareas"
 TaskCreate: "Fase 3 — Implementación"
 TaskCreate: "Fase 4 — QA Mecánico"
 TaskCreate: "Fase 5 — QA Negocio"
 ```
 
+LITE:
+
+```
+TaskCreate: "Fase 1 — Scan rápido"
+TaskCreate: "Fase 2 — Plan y tareas"
+TaskCreate: "Fase 3 — Implementación"
+TaskCreate: "Fase 4 — QA Mecánico"
+```
+
 ### 2 — Leer package.json y detectar stack
 
-Leé `package.json` (y lockfile si existe). Consultá [SKILLS-CATALOG.md](SKILLS-CATALOG.md) para mapear dependencias → skills.
+Leé `package.json`. Consultá [SKILLS-CATALOG.md](SKILLS-CATALOG.md) para mapear dependencias → skills. Leé cada SKILL.md detectada antes de continuar.
 
-### 3 — Leer las skills detectadas
+### 3 — Evaluar routing FULL vs LITE
 
-Leé cada SKILL.md antes de continuar. Se convierten en contexto activo para todas las fases.
+Lanzá un agente `haiku` con este prompt:
+
+```
+Evaluá esta tarea y determiná el path de desarrollo. Respondé SOLO con el bloque de abajo, sin explicaciones adicionales.
+
+TAREA: [tarea del usuario]
+STACK DETECTADO: [stack de paso 2]
+
+AMBIGÜEDAD: [Alta / Baja]
+→ Alta si: edge cases no especificados, reglas de negocio implícitas,
+   o "lo obvio" tiene múltiples interpretaciones válidas.
+→ Baja si: el comportamiento esperado está claro y no hay decisiones abiertas.
+
+NOVEDAD: [Alta / Baja]
+→ Alta si: no existe patrón similar en el codebase o toca lógica nueva.
+→ Baja si: hay componente/hook/service similar que se puede replicar o extender.
+
+SUPERFICIE: [1-2 dominios / 3+ dominios]
+→ Contá dominios distintos (auth, payments, notifications...), no archivos.
+
+PATH: [FULL / LITE]
+REGLA: FULL si ambigüedad Alta OR novedad Alta OR superficie 3+
+       LITE si ambigüedad Baja AND novedad Baja AND superficie 1-2
+       Duda → FULL por defecto.
+RAZÓN: [una línea]
+```
 
 ### 4 — Informar al usuario
 
 ```
-Stack detectado: Next.js · React 19 · TypeScript · Tailwind CSS 4
-Skills cargadas: nextjs, react-19, typescript, tailwind-4
+Stack: Next.js · TypeScript · Tailwind CSS 4
+Skills: nextjs, react-19, typescript, tailwind-4
+Ambigüedad: Baja · Novedad: Baja · Superficie: 1 dominio
+→ Path LITE
 ```
 
 ---
 
-## Fase 1 — Investigación
+## Fase 0.5 — Spec funcional (solo FULL)
 
-**Agente:** `Explore` · `model: "opus"`
+**Agente:** `sonnet`
 
-Esta fase siempre corre antes de cualquier implementación. Su objetivo es entender el terreno: qué existe, cómo funciona, qué se puede reutilizar, qué se puede mejorar.
+Antes de investigar el codebase, definir exactamente _qué_ se va a construir. El agente no lee código en esta fase — trabaja solo con la descripción del usuario.
+
+Marcá Fase 0.5 como `in_progress`. Lanzá el agente con este prompt:
+
+```
+Generá el spec funcional para esta tarea. No leas código todavía.
+
+TAREA: [tarea del usuario]
+
+Respondé EXACTAMENTE con este formato:
+
+---
+## Spec — [nombre del feature]
+
+### Propósito
+[Una línea: qué problema resuelve y para quién]
+
+### Casos de uso
+- [Actor] puede [acción] para [resultado]
+(listá todos los casos, incluidos los secundarios)
+
+### Requisitos
+- [requisito funcional 1]
+- [requisito funcional 2]
+
+### Edge cases
+- ¿Qué pasa si [situación límite]?
+- ¿Qué pasa si [error esperado]?
+
+### Criterios de aceptación
+- Given [contexto], When [acción], Then [resultado esperado]
+- Given [contexto], When [acción], Then [resultado esperado]
+(mínimo 3, uno por caso de uso principal)
+
+### Fuera de scope
+- [cosa que podría confundirse como parte del feature pero no lo es]
+---
+
+Si hay algo ambiguo que no podés resolver sin información del usuario → listalo al final como "Ambigüedades a resolver" antes de continuar.
+```
+
+**Acción del orquestador:**
+
+- Marcá Fase 0.5 como `completed`
+- Si hay ambigüedades → **pausar y resolver con el usuario antes de continuar**
+- **Presentar el spec al usuario y esperar aprobación explícita**
+
+```
+Revisá el spec antes de que empiece la investigación.
+
+[SPEC COMPLETO]
+
+¿Aprobamos? Podés:
+- ✅ Aprobar → investigo el codebase con este scope
+- ✏️ Ajustar → decime qué cambiamos
+- ➕ Agregar casos o edge cases que falten
+```
+
+---
+
+## Fase 1 FULL — Investigación
+
+**Agente:** `sonnet` · Scope acotado por el spec aprobado
+
+Con el spec aprobado, la investigación es quirúrgica — el agente sabe exactamente qué buscar.
 
 Marcá Fase 1 como `in_progress`. Lanzá el agente con este prompt:
 
 ```
-Investigá el proyecto en profundidad para entender el contexto de esta tarea: [TAREA DEL USUARIO]
+Investigá el codebase para implementar el siguiente spec aprobado.
 
-No des nada por sabido. Leé el código real, no asumas comportamientos.
+SPEC APROBADO:
+[OUTPUT COMPLETO DE FASE 0.5]
 
-Respondé EXACTAMENTE con estas secciones:
+Buscá SOLO lo relevante para este spec. No hagas auditoría general.
 
-### 1. Lógica de negocio
-- ¿Qué flujo de negocio toca esta tarea?
-- ¿Qué datos maneja? ¿De dónde vienen, qué transformaciones sufren, adónde van?
-- ¿Qué reglas de negocio implícitas hay en el código existente que esta tarea debe respetar?
-- ¿Qué casos edge o estados especiales existen en el flujo actual?
+Respondé con estas secciones:
 
-### 2. Inventario de reutilizables
-Buscá EXHAUSTIVAMENTE en todo el proyecto. Para cada ítem: path completo + qué hace + si aplica directamente o necesita adaptación.
+### 1. Inventario de reutilizables
+Para cada ítem: path completo + qué hace + si aplica directo o necesita adaptación.
+- Componentes similares
+- Hooks con lógica aplicable
+- Utils / mappers / services relevantes
+- Types / interfaces existentes que apliquen
+Si no hay nada reutilizable → decirlo explícitamente.
 
-**Componentes:** ¿hay algo que haga algo similar a lo que se necesita?
-**Hooks:** ¿hay lógica stateful reutilizable?
-**Utils / mappers:** ¿hay funciones de transformación que apliquen?
-**Services:** ¿hay servicios que ya manejen esta entidad o flujo?
-**Types / interfaces:** ¿hay tipos existentes que apliquen o se puedan extender?
-**Constantes / configs:** ¿hay configuraciones relevantes?
+### 2. Archivos afectados
+- Modificar: path + motivo
+- Crear: path + responsabilidad
 
-### 3. Oportunidades de mejora detectadas
-Al investigar el código existente, ¿encontrás algo que conviene mejorar antes o durante esta tarea?
-- Código duplicado que esta tarea podría consolidar
-- Tipos incompletos o `any` que conviene corregir
-- Lógica de negocio dentro de componentes que debería extraerse
-- Patrones inconsistentes con el resto del proyecto
-Listá solo lo que es relevante para esta tarea. No auditoría general.
+### 3. Decisiones de arquitectura detectadas
+Patrones existentes que esta implementación debe respetar.
+(naming, estructura de carpetas, convenciones de la feature más similar)
 
-### 4. Archivos afectados
-- Archivos a modificar: path + motivo
-- Archivos a crear: path + responsabilidad única
-
-### 5. Ambigüedades de negocio
-¿Hay algo que no podés determinar leyendo el código?
-(comportamiento esperado, casos edge, reglas no documentadas)
-Listá claramente — estas se resuelven con el usuario antes de continuar.
+### 4. Ambigüedades técnicas
+Solo las que el spec no cubre y afectan la implementación.
 ```
 
 **Acción del orquestador:**
+
 - Marcá Fase 1 como `completed`
-- Si hay ambigüedades de negocio → **pausar y preguntar al usuario antes de continuar**
-- Si no hay ambigüedades → pasar output completo a Fase 2
+- Si hay ambigüedades técnicas → consultar al usuario
+- Pasar output completo a Fase 2
 
 ---
 
-## Fase 2 — Plan y lista de tareas
+## Fase 1 LITE — Scan rápido
 
-**Agente:** `general-purpose` · `model: "sonnet"`
+**Agente:** `haiku`
+
+Sin spec previo. Scan directo y acotado del codebase.
+
+Marcá Fase 1 como `in_progress`. Lanzá el agente con este prompt:
+
+```
+Scan rápido del codebase para esta tarea: [TAREA DEL USUARIO]
+
+Respondé SOLO con:
+
+### Reutilizables
+- path + qué hace + si aplica directo o necesita adaptación
+(si no hay nada → "Ninguno relevante")
+
+### Archivos afectados
+- Modificar: path + motivo
+- Crear: path + responsabilidad
+
+### Patrón a seguir
+Path del archivo más similar al que hay que crear/modificar.
+```
+
+**Acción del orquestador:**
+
+- Marcá Fase 1 como `completed`
+- Pasar output a Fase 2 LITE
+
+---
+
+## Fase 2 FULL — Plan + Tasks
+
+**Agente:** `sonnet`
 
 Marcá Fase 2 como `in_progress`. Lanzá el agente con este prompt:
 
 ```
-Con base en la investigación, generá el plan de implementación y la lista de tareas para aprobación del usuario.
+Generá el plan de implementación basado en el spec y la investigación.
 
-[OUTPUT COMPLETO DE FASE 1]
+SPEC APROBADO:
+[OUTPUT DE FASE 0.5]
 
-Revisá cada punto. Leé los archivos mencionados si necesitás confirmar algo.
+INVESTIGACIÓN:
+[OUTPUT DE FASE 1 FULL]
 
-1. REUTILIZACIÓN (prioridad máxima):
-   - ¿El plan usa TODO lo identificado en el inventario?
-   - ¿El plan propone crear algo que ya existe de otra forma?
-   - ¿Los nuevos componentes se pueden diseñar para reutilización futura?
-   - ¿Las interfaces propuestas ya existen o se pueden extender?
-
-2. ARQUITECTURA Y SEPARACIÓN:
-   - ¿Los archivos van en el lugar correcto según la estructura del proyecto?
-   - ¿La lógica de negocio está en services/hooks/utils, no en componentes?
-   - ¿Los componentes nuevos son genéricos o están acoplados a un caso específico?
-
-3. MEJORAS: De las oportunidades detectadas en Fase 1, ¿cuáles conviene incluir en este plan?
-
-4. REGLAS: Leé [RULES.md](RULES.md). ¿El plan las respeta?
-   Stack activo: [LISTA DE SKILLS CARGADAS EN FASE 0]
+Revisá antes de planificar:
+1. ¿El plan usa TODO lo del inventario de reutilizables?
+2. ¿La arquitectura es coherente con los patrones detectados?
+3. ¿Los archivos van en el lugar correcto según la estructura del proyecto?
+4. ¿La lógica de negocio está en services/hooks/utils, no en componentes?
+Leé [RULES.md](RULES.md) y verificá que el plan las respeta.
+Stack activo: [LISTA DE SKILLS DE FASE 0]
 
 Devolvé EXACTAMENTE este formato:
 
 ---
-## 📋 Lista de tareas — [nombre de la feature]
+## Plan — [nombre del feature]
 
-### Contexto
-[2-3 líneas: qué se va a hacer y por qué]
-
-### Reutilizables que se van a usar
-- `path/al/componente` — qué rol cumple en esta tarea
-- `path/al/hook` — qué lógica aporta
-(lista exhaustiva — si no se reutiliza nada, explicar por qué)
-
-### Mejoras incluidas
-- [mejora 1 detectada en Fase 1 que se incorpora]
-(o "Ninguna" si no aplica)
+### Reutilizables a usar
+- `path` — rol en esta implementación
+(exhaustivo — si no se reutiliza nada, explicar por qué)
 
 ### Pasos de implementación
-1. [ ] Paso 1 — descripción + archivos afectados
-2. [ ] Paso 2 — descripción + archivos afectados
-3. [ ] Paso 3 — ...
-(ordenados: primero tipos, luego servicios/hooks, luego componentes, luego tests)
+1. [ ] Paso — descripción + archivos afectados
+(orden: tipos → services/hooks → componentes → wiring)
 
 ### Archivos a crear
-- `path/archivo.ts` — responsabilidad en una línea
+- `path` — responsabilidad
 
 ### Archivos a modificar
-- `path/archivo.tsx` — qué cambia y por qué
+- `path` — qué cambia y por qué
 
 ### Decisiones de diseño
-- [decisión 1 que el implementador debe respetar]
-- [decisión 2 ...]
+- [decisión que el implementador debe respetar]
 
 ### Riesgos
-- [Alto/Medio/Bajo] — descripción del riesgo
+- [Alto/Medio/Bajo] — descripción
 ---
 ```
 
 **Acción del orquestador:**
+
 - Marcá Fase 2 como `completed`
-- **Presentar la lista al usuario exactamente como la generó el agente**
-- **PAUSAR y esperar aprobación explícita antes de continuar**
+- **Presentar plan al usuario y esperar aprobación**
+
+```
+Plan listo. Revisalo antes de que arranque la implementación.
+
+[PLAN COMPLETO]
+
+¿Procedemos? Podés:
+- ✅ Aprobar → arrancamos
+- ✏️ Ajustar → decime qué cambiamos
+- ❓ Consultar → aclaramos lo que necesites
+```
 
 ---
 
-## ⏸️ Checkpoint de aprobación
+## Fase 2 LITE — Plan + Tasks
 
-Después de Fase 2, el orquestador presenta al usuario:
+**Agente:** `sonnet`
+
+Marcá Fase 2 como `in_progress`. Lanzá el agente con este prompt:
 
 ```
-Revisá la lista antes de que empiece la implementación.
+Generá el plan de implementación.
 
-[LISTA COMPLETA DE FASE 2]
+TAREA: [TAREA DEL USUARIO]
+SCAN: [OUTPUT DE FASE 1 LITE]
 
-¿Procedemos con esto? Podés:
-- ✅ Aprobar → arrancamos
-- ✏️ Ajustar → decime qué cambiamos
-- ❓ Preguntar → aclaramos lo que necesites
+Leé [RULES.md](RULES.md). Stack activo: [LISTA DE SKILLS DE FASE 0]
+
+Devolvé EXACTAMENTE este formato:
+
+---
+## Plan — [nombre]
+
+### Reutilizables a usar
+- `path` — rol (o "Ninguno")
+
+### Pasos de implementación
+1. [ ] Paso — descripción + archivos
+(orden: tipos → services/hooks → componentes)
+
+### Archivos a crear
+- `path` — responsabilidad
+
+### Archivos a modificar
+- `path` — qué cambia
+
+### Decisiones de diseño
+- [decisión clave]
+---
 ```
 
-**No avanzar a Fase 3 sin respuesta afirmativa del usuario.**
+**Acción del orquestador:**
 
-### Operatoria según el tipo de ajuste
+- Marcá Fase 2 como `completed`
+- **Presentar plan al usuario y esperar aprobación**
 
-| El usuario dice | Acción del orquestador |
-|---|---|
-| Cambio menor (wording, reordenar pasos, agregar un archivo) | Modificar el plan inline, confirmar al usuario y continuar a Fase 3 |
-| Cambio de diseño (diferente arquitectura, nuevos módulos, decisión diferente) | Volver a Fase 2 con las notas del usuario como contexto adicional |
-| "Necesito entender mejor X antes de decidir" | Volver a Fase 1 con la pregunta específica como foco de investigación |
-| Cancelar | Marcar todas las fases como `cancelled`, informar al usuario |
+---
+
+## ⏸ Operatoria de ajustes post-aprobación
+
+| El usuario dice                                           | Acción                                    |
+| --------------------------------------------------------- | ----------------------------------------- |
+| Cambio menor (wording, reordenar, agregar archivo)        | Modificar inline, confirmar y continuar   |
+| Cambio de diseño (arquitectura diferente, nuevos módulos) | Volver a Fase 2 con notas del usuario     |
+| "Necesito entender X antes de decidir"                    | Volver a Fase 1 con la pregunta como foco |
+| Cancelar                                                  | Marcar todo como `cancelled`              |
 
 ---
 
 ## Fase 3 — Implementación
 
-**Agente:** `general-purpose` · `model: "sonnet"`
+**Agente:** `sonnet`
 
 Marcá Fase 3 como `in_progress`. Lanzá el agente con este prompt:
 
@@ -275,92 +421,82 @@ Implementá exactamente lo aprobado.
 
 TAREA: [TAREA DEL USUARIO]
 
-Antes de escribir cualquier línea, leé estos archivos:
+Leé antes de escribir cualquier línea:
 - ~/.claude/skills/dev-pipeline/RULES.md
-[PATHS DE SKILLS CARGADAS EN FASE 0 — uno por línea]
+[PATHS DE SKILLS DE FASE 0 — uno por línea]
 
 Luego leé cada archivo que vas a modificar antes de tocarlo.
 
 PLAN APROBADO:
-[SOLO ESTAS SECCIONES DEL OUTPUT DE FASE 2:]
-- Reutilizables que se van a usar
+[SOLO ESTAS SECCIONES:]
+- Reutilizables a usar
 - Pasos de implementación
-- Archivos a crear
-- Archivos a modificar
+- Archivos a crear / modificar
 - Decisiones de diseño
 
-Reglas obligatorias:
-- Usá TODOS los reutilizables del plan — no recreés nada que ya existe
-- Componentes nuevos: props genéricas, IProps fuera del componente, sin lógica de negocio
-- Funciones siempre como const arrow functions, nunca function keyword
-- Separación estricta: lógica en services/utils/hooks/mappers, UI en componentes
-- Si encontrás algo que el plan no contempló y cambia la lógica de negocio → STOP y reportalo
+Reglas:
+- Usá TODOS los reutilizables del plan
+- Componentes: props genéricas, IProps fuera del componente, sin lógica de negocio
+- Funciones siempre const arrow, nunca function keyword
+- Si encontrás algo que el plan no contempló y cambia lógica de negocio → STOP y reportalo
 - Sin console.log, comentarios obvios ni código muerto
 
-Al terminar, devolvé:
-1. Lista de archivos creados/modificados con descripción de una línea cada uno
+Al terminar devolvé:
+1. Lista de archivos creados/modificados con descripción de una línea
 2. Decisiones no previstas en el plan (si las hubo) con justificación
 ```
 
-### Batching para features grandes
-
-Si el plan tiene **más de 5 archivos** a crear/modificar, implementar en batches ordenados:
+### Batching para +5 archivos
 
 ```
-Batch 1: tipos + interfaces + servicios + mappers
-    ↓ verificar que compila (tsc --noEmit)
+Batch 1: tipos + interfaces + services + mappers
+    ↓ tsc --noEmit
 Batch 2: hooks + utils + Server Actions
-    ↓ verificar que compila
-Batch 3: componentes + páginas + wiring final
+    ↓ tsc --noEmit
+Batch 3: componentes + páginas + wiring
     ↓ pasar a QA
 ```
 
-El orquestador relanza Fase 3 por batch, pasando los archivos ya implementados como contexto para el siguiente.
-
 **Acción del orquestador:**
+
 - Marcá Fase 3 como `completed`
-- Si hay decisiones no previstas que afectan lógica de negocio → consultar al usuario antes de continuar
-- Si todo está en orden → pasar lista de archivos a Fase 4
+- Decisiones no previstas que afecten lógica de negocio → consultar al usuario antes de continuar
 
 ---
 
 ## Fase 4 — QA Mecánico
 
-**Agente:** `general-purpose` · `model: "haiku"`
-
-Verificación estructurada y determinística. Sin razonamiento semántico — solo checks mecánicos.
+**Agente:** `haiku`
 
 Marcá Fase 4 como `in_progress`. Lanzá el agente con este prompt:
 
 ```
 Verificá mecánicamente la implementación. Leé los archivos reales.
 
-ARCHIVOS MODIFICADOS/CREADOS: [LISTA DE FASE 3]
+ARCHIVOS: [LISTA DE FASE 3]
 
 1. LINTS:
-   - ESLint: Bash `npx eslint --format=compact <archivos>`
-   - TypeScript: Bash `npx tsc --noEmit`
+   - Bash: npx eslint --format=compact [archivos]
+   - Bash: npx tsc --noEmit
 
 2. CONVENCIONES (leé ~/.claude/skills/dev-pipeline/RULES.md):
    - ¿const arrow functions? ¿Ningún function keyword?
-   - ¿Props tipadas fuera del componente con IProps?
+   - ¿IProps fuera del componente?
    - ¿Early return en vez de if/else anidado?
-   - ¿Sin let innecesario?
    - ¿Sin any ni casteos inseguros?
    - ¿Sin console.log ni código muerto?
 
 3. ESTRUCTURA:
-   - ¿Los archivos están en el directorio correcto (components/ hooks/ utils/ services/)?
-   - ¿Hay index.ts con re-export para cada componente nuevo?
+   - ¿Archivos en directorio correcto?
+   - ¿index.ts con re-export para cada componente nuevo?
 
 4. COMPLETITUD:
    - ¿Se crearon/modificaron todos los archivos del plan?
-   - ¿Algún paso de implementación quedó sin completar?
 
-Formato de respuesta:
+Formato:
 ## QA Mecánico: PASS ✅ / FAIL ❌
 
-### Issues que bloquean (lint errors, tsc errors, convenciones rotas)
+### Bloqueantes
 - ...
 
 ### Confirmado ✅
@@ -368,67 +504,67 @@ Formato de respuesta:
 ```
 
 **Acción del orquestador:**
-- Marcá Fase 4 como `completed`
-- FAIL → relanzar Fase 3 con el reporte (máximo **2 reintentos**)
-- Después de 2 reintentos fallidos → **escalar al usuario** con el reporte completo, no seguir looping
-- PASS → continuar a Fase 5
+
+- FAIL → relanzar Fase 3 con reporte (máximo **2 reintentos**)
+- Después de 2 reintentos → escalar al usuario, no seguir looping
+- PASS → path FULL continúa a Fase 5 · path LITE termina aquí
 
 ---
 
-## Fase 5 — QA Negocio
+## Fase 5 — QA Negocio (solo FULL)
 
-**Agente:** `general-purpose` · `model: "sonnet"`
-
-Revisión semántica. Requiere entender el dominio — haiku no puede hacer esto bien.
+**Agente:** `sonnet`
 
 Marcá Fase 5 como `in_progress`. Lanzá el agente con este prompt:
 
 ```
-Revisá la implementación contra la lógica de negocio. Leé los archivos reales.
+Revisá la implementación contra el spec y la lógica de negocio.
 
-TAREA ORIGINAL: [TAREA DEL USUARIO]
-ARCHIVOS MODIFICADOS/CREADOS: [LISTA DE FASE 3]
-REGLAS DE NEGOCIO IDENTIFICADAS EN FASE 1: [SECCIÓN 1 DEL OUTPUT DE FASE 1]
+SPEC ORIGINAL: [OUTPUT DE FASE 0.5]
+ARCHIVOS: [LISTA DE FASE 3]
+REGLAS DE NEGOCIO: [SECCIÓN 1 DE FASE 1 FULL si aplica]
 
-1. LÓGICA DE NEGOCIO:
-   - ¿La implementación respeta todas las reglas de negocio identificadas?
-   - ¿Hay casos edge del flujo actual que quedaron sin cubrir?
-   - ¿Hay lógica de negocio dentro de componentes UI que debería estar en services/hooks?
+1. CRITERIOS DE ACEPTACIÓN:
+   ¿Cada Given/When/Then del spec está cubierto por la implementación?
 
-2. REUTILIZACIÓN:
-   - ¿Se usaron todos los reutilizables del plan?
-   - ¿Se duplicó lógica que ya existía en el proyecto?
-   - ¿Los componentes nuevos son genéricos o tienen lógica hardcodeada?
+2. EDGE CASES:
+   ¿Los edge cases del spec están manejados?
 
-3. PERFORMANCE:
-   - ¿Componentes pesados sin dynamic import?
-   - ¿Imágenes sin next/image?
+3. LÓGICA DE NEGOCIO:
+   ¿Hay lógica de negocio dentro de componentes UI que debería estar en services/hooks?
+
+4. REUTILIZACIÓN:
+   ¿Se usaron todos los reutilizables del plan?
+   ¿Se duplicó lógica que ya existía?
+
+5. PERFORMANCE:
+   - ¿Client Components innecesarios?
    - ¿Fetches secuenciales que podrían ser paralelos?
-   - ¿Client Components innecesarios (podrían ser Server Components)?
+   - ¿Imágenes sin next/image?
 
-4. TESTS: (testing progresivo — no bloquea merge)
-   - Nueva lógica de negocio → indicar path y tipo de test unitario recomendado
-   - Nuevo flujo completo → indicar caso E2E a cubrir
+6. TESTS: (progresivo — no bloquea merge)
+   - Nueva lógica de negocio → path + tipo de test recomendado
+   - Flujo completo nuevo → caso E2E a cubrir
 
-Formato de respuesta:
+Formato:
 ## QA Negocio: PASS ✅ / FAIL ❌ / PASS CON OBSERVACIONES ⚠️
+
+### Criterios de aceptación
+- [Given/When/Then] → ✅ cubierto / ❌ no cubierto
 
 ### Issues críticos (bloquean merge)
 - ...
 
-### Observaciones (no bloquean, mejoras sugeridas)
+### Observaciones (no bloquean)
 - ...
 
 ### Tests pendientes
 - ...
-
-### Confirmado ✅
-- ...
 ```
 
 **Acción del orquestador:**
-- Marcá Fase 5 como `completed`
-- FAIL con issues críticos → relanzar Fase 3 con el reporte (máximo **2 reintentos totales** contando los de Fase 4)
+
+- FAIL con issues críticos → relanzar Fase 3 (máximo **2 reintentos totales** contando Fase 4)
 - PASS o PASS CON OBSERVACIONES → presentar reporte completo al usuario
 
 ---
@@ -436,14 +572,15 @@ Formato de respuesta:
 ## Reglas del orquestador
 
 - **No implementes vos** — siempre delegá a agentes
-- **Nunca des nada por sabido** — si la lógica de negocio no queda clara, preguntá
-- **Pasá solo el contexto necesario por fase** — Fase 3 recibe el plan comprimido (secciones accionables), no el raw de Fase 1. Fase 4 recibe solo archivos. Fase 5 recibe archivos + reglas de negocio de Fase 1.
-- **Fase 1 es obligatoria siempre** — no saltearse la investigación
-- **El checkpoint de aprobación es hard stop** — sin OK del usuario no hay Fase 3
-- **Reintentos de Fase 3: máximo 2 en total** — si falla dos veces, escalar al usuario con el reporte
-- **Fase 1** → `opus` · **Fases 2, 3, 5** → `sonnet` · **Fase 4** → `haiku`
+- **Routing dudoso → FULL** — nunca asumir LITE si hay incertidumbre
+- **Pasá solo el contexto necesario por fase** — Fase 3 recibe plan comprimido, no raw de Fase 1. Fase 4 recibe solo archivos. Fase 5 recibe archivos + spec + reglas de negocio.
+- **Fase 0.5 es obligatoria en FULL** — no saltear el spec
+- **Ambos checkpoints son hard stop** — sin OK del usuario no avanza
+- **Reintentos de Fase 3: máximo 2 en total**
+- **Modelos:** Fase 0/1 LITE/4 → `haiku` · Fase 0.5/1 FULL/2/3/5 → `sonnet`
+- **Aliases siempre** — usá `sonnet` y `haiku` sin versión, se resuelven al modelo más reciente
 
 ## Recursos
 
 - Convenciones y anti-patrones: [RULES.md](RULES.md)
-- Mapeo de dependencias → skills: [SKILLS-CATALOG.md](SKILLS-CATALOG.md)
+- Mapeo dependencias → skills: [SKILLS-CATALOG.md](SKILLS-CATALOG.md)

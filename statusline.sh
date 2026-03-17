@@ -25,15 +25,22 @@ DIR=$(echo "$input" | jq -r '.workspace.current_dir // "~"')
 ADDED=$(echo "$input" | jq -r '.cost.total_lines_added // 0')
 REMOVED=$(echo "$input" | jq -r '.cost.total_lines_removed // 0')
 
-# Context window (before compression)
-CTX_SIZE=$(echo "$input" | jq -r '.context_window.context_window_size // 200000')
-INPUT_TOKENS=$(echo "$input" | jq -r '.context_window.current_usage.input_tokens // 0')
-CACHE_CREATE=$(echo "$input" | jq -r '.context_window.current_usage.cache_creation_input_tokens // 0')
-CACHE_READ=$(echo "$input" | jq -r '.context_window.current_usage.cache_read_input_tokens // 0')
+# Session cumulative tokens
+TOTAL_IN=$(echo "$input" | jq -r '.context_window.total_input_tokens // 0')
+TOTAL_OUT=$(echo "$input" | jq -r '.context_window.total_output_tokens // 0')
+SESSION_TOKENS=$((TOTAL_IN + TOTAL_OUT))
 
-TOTAL_USED=$((INPUT_TOKENS + CACHE_CREATE + CACHE_READ))
-if [ "$CTX_SIZE" -gt 0 ] 2>/dev/null; then
-  CTX_PERCENT=$((TOTAL_USED * 100 / CTX_SIZE))
+# Format session tokens (K suffix)
+if [ "$SESSION_TOKENS" -ge 1000 ]; then
+  SESSION_TOKENS_DISPLAY="$(echo "$SESSION_TOKENS" | awk '{printf "%.1fk", $1/1000}')"
+else
+  SESSION_TOKENS_DISPLAY="${SESSION_TOKENS}"
+fi
+
+# Context window — use pre-calculated fields from Claude Code (avoids double-counting cache)
+CTX_PERCENT_RAW=$(echo "$input" | jq -r '.context_window.used_percentage // empty')
+if [ -n "$CTX_PERCENT_RAW" ]; then
+  CTX_PERCENT=$(printf "%.0f" "$CTX_PERCENT_RAW")
 else
   CTX_PERCENT=0
 fi
@@ -171,5 +178,8 @@ LINE+="${SUCCESS}+${ADDED}${NC} ${ERROR}-${REMOVED}${NC}"
 
 LINE+="${SEP}"
 LINE+="${MUTED}ctx${NC} ${BAR} ${MUTED}${CTX_PERCENT}%${NC}"
+
+LINE+="${SEP}"
+LINE+="${MUTED}session${NC} ${SECONDARY}${SESSION_TOKENS_DISPLAY}${NC}"
 
 echo -e "$LINE"
