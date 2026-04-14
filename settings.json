@@ -102,7 +102,14 @@
   "outputStyle": "Eze P",
   "user_preferences": {
     "role": "Fullstack developer & entrepreneur",
-    "stack": ["TypeScript", "React", "Next.js", "Firebase", "NestJS", "Tailwind CSS"],
+    "stack": [
+      "TypeScript",
+      "React",
+      "Next.js",
+      "Firebase",
+      "NestJS",
+      "Tailwind CSS"
+    ],
     "communication": {
       "tone": "direct",
       "verbosity": "low"

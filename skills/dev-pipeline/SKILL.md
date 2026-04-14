@@ -43,17 +43,23 @@ Fase 1 FULL: Investigación          ⏸ Pausa — aprobación
 Fase 2 FULL: Plan + Tasks                  │
 ⏸ Pausa — aprobación                       │
     │                                       │
-    └───────────────────┬───────────────────┘
-                        │
-                        ▼
-                Fase 3: Implementación
-                        │
-                        ▼
-                Fase 4: QA Mecánico
-                        │
-                FULL ───┤
-                        ▼
-                Fase 5: QA Negocio (solo FULL)
+    ├─── Usuario pidió tests ──┐            │
+    │                          ▼            │
+    │              Fase 2.5: Tests from Spec│
+    │                          │            │
+    └─────────┬────────────────┘            │
+              │                             │
+              └──────────────┬──────────────┘
+                             │
+                             ▼
+                     Fase 3: Implementación
+                             │
+                             ▼
+                     Fase 4: QA Mecánico
+                             │
+                     FULL ───┤
+                             ▼
+                     Fase 5: QA Negocio (solo FULL)
 ```
 
 ---
@@ -67,6 +73,7 @@ Fase 2 FULL: Plan + Tasks                  │
 | Fase 1 FULL — Investigación | **`sonnet`** | Scope acotado por el spec — no necesita opus                                    |
 | Fase 1 LITE — Scan          | **`haiku`**  | Solo reutilizables y archivos afectados                                         |
 | Fase 2 — Plan + Tasks       | **`sonnet`** | Razonamiento estructurado sobre output anterior                                 |
+| Fase 2.5 — Tests (opt-in)   | **`sonnet`** | Acceptance criteria → test cases ejecutables. Solo si el usuario lo pide        |
 | Fase 3 — Implementación     | **`sonnet`** | Generación de código sobre plan aprobado                                        |
 | Fase 4 — QA Mecánico        | **`haiku`**  | Checks determinísticos, no requiere razonamiento                                |
 | Fase 5 — QA Negocio (FULL)  | **`sonnet`** | Revisión semántica de lógica de negocio                                         |
@@ -87,6 +94,7 @@ FULL:
 TaskCreate: "Fase 0.5 — Spec funcional"
 TaskCreate: "Fase 1 — Investigación"
 TaskCreate: "Fase 2 — Plan y tareas"
+TaskCreate: "Fase 2.5 — Tests from Spec" (solo si el usuario lo pide — crear al momento, no por defecto)
 TaskCreate: "Fase 3 — Implementación"
 TaskCreate: "Fase 4 — QA Mecánico"
 TaskCreate: "Fase 5 — QA Negocio"
@@ -193,6 +201,7 @@ Si hay algo ambiguo que no podés resolver sin información del usuario → list
 **Acción del orquestador:**
 
 - Marcá Fase 0.5 como `completed`
+- **Persistir el spec:** guardar en `.claude/specs/[feature-name-kebab].md` dentro del proyecto
 - Si hay ambigüedades → **pausar y resolver con el usuario antes de continuar**
 - **Presentar el spec al usuario y esperar aprobación explícita**
 
@@ -320,8 +329,9 @@ Devolvé EXACTAMENTE este formato:
 (exhaustivo — si no se reutiliza nada, explicar por qué)
 
 ### Pasos de implementación
-1. [ ] Paso — descripción + archivos afectados
+1. [ ] Paso — descripción + archivos afectados → verify: [check concreto]
 (orden: tipos → services/hooks → componentes → wiring)
+(cada paso incluye su verificación: tsc, test, import, render)
 
 ### Archivos a crear
 - `path` — responsabilidad
@@ -340,6 +350,7 @@ Devolvé EXACTAMENTE este formato:
 **Acción del orquestador:**
 
 - Marcá Fase 2 como `completed`
+- **Persistir el plan:** guardar en `.claude/specs/[feature-name-kebab]-plan.md` dentro del proyecto
 - **Presentar plan al usuario y esperar aprobación**
 
 ```
@@ -350,6 +361,7 @@ Plan listo. Revisalo antes de que arranque la implementación.
 ¿Procedemos? Podés:
 - ✅ Aprobar → arrancamos
 - ✏️ Ajustar → decime qué cambiamos
+- 🧪 Con tests → escribo tests desde el spec antes de implementar
 - ❓ Consultar → aclaramos lo que necesites
 ```
 
@@ -378,7 +390,7 @@ Devolvé EXACTAMENTE este formato:
 - `path` — rol (o "Ninguno")
 
 ### Pasos de implementación
-1. [ ] Paso — descripción + archivos
+1. [ ] Paso — descripción + archivos → verify: [check concreto]
 (orden: tipos → services/hooks → componentes)
 
 ### Archivos a crear
@@ -396,6 +408,56 @@ Devolvé EXACTAMENTE este formato:
 
 - Marcá Fase 2 como `completed`
 - **Presentar plan al usuario y esperar aprobación**
+
+---
+
+## Fase 2.5 — Tests from Spec (opt-in, solo FULL)
+
+**Agente:** `sonnet` · Solo se activa si el usuario lo pidió explícitamente
+
+Esta fase **nunca se fuerza**. El orquestador la ofrece como opción al presentar el plan en Fase 2:
+
+```
+¿Procedemos? Podés:
+- ✅ Aprobar → arrancamos
+- ✏️ Ajustar → decime qué cambiamos
+- 🧪 Con tests → escribo tests desde el spec antes de implementar
+- ❓ Consultar → aclaramos lo que necesites
+```
+
+Si el usuario elige tests, marcá Fase 2.5 como `in_progress`. Lanzá el agente con este prompt:
+
+```
+Generá tests ejecutables desde los acceptance criteria del spec.
+
+SPEC APROBADO:
+[OUTPUT DE FASE 0.5 — sección Criterios de aceptación]
+
+PLAN APROBADO:
+[OUTPUT DE FASE 2 — sección Archivos a crear/modificar]
+
+STACK DE TESTS: [vitest / jest / playwright — según lo detectado en package.json]
+
+Para cada Given/When/Then del spec:
+1. Creá un test case que lo cubra
+2. El test DEBE FALLAR (Red) — no escribas implementación
+3. Usá paths reales del plan para imports (van a fallar porque no existen aún)
+
+Formato de output:
+
+### Tests generados
+- `path/to/test.test.ts` — cubre: [criterio 1, criterio 2]
+- `path/to/test.test.ts` — cubre: [criterio 3]
+
+### Criterios sin test
+- [criterio que no se puede testear unitariamente — explicar por qué]
+```
+
+**Acción del orquestador:**
+
+- Marcá Fase 2.5 como `completed`
+- Presentar tests al usuario para confirmar cobertura
+- Pasar lista de test files a Fase 3 — el agente implementador sabe que debe hacer pasar los tests
 
 ---
 
@@ -440,6 +502,11 @@ Reglas:
 - Funciones siempre const arrow, nunca function keyword
 - Si encontrás algo que el plan no contempló y cambia lógica de negocio → STOP y reportalo
 - Sin console.log, comentarios obvios ni código muerto
+- Ejecutá el verify de cada paso del plan después de completarlo
+[SI FASE 2.5 ACTIVA]:
+- Hay tests previos que deben PASAR (Green). Correlos después de cada batch.
+- TEST FILES: [lista de archivos de Fase 2.5]
+- Si un test falla por diseño incorrecto del test (no por bug de implementación) → reportalo, no lo modifiques
 
 Al terminar devolvé:
 1. Lista de archivos creados/modificados con descripción de una línea
@@ -575,9 +642,11 @@ Formato:
 - **Routing dudoso → FULL** — nunca asumir LITE si hay incertidumbre
 - **Pasá solo el contexto necesario por fase** — Fase 3 recibe plan comprimido, no raw de Fase 1. Fase 4 recibe solo archivos. Fase 5 recibe archivos + spec + reglas de negocio.
 - **Fase 0.5 es obligatoria en FULL** — no saltear el spec
+- **Fase 2.5 es opt-in** — solo si el usuario lo pide. Nunca forzar ni sugerir insistentemente
 - **Ambos checkpoints son hard stop** — sin OK del usuario no avanza
+- **Persistir artefactos** — spec en `.claude/specs/`, plan en `.claude/specs/` (con sufijo `-plan`). Crear directorio si no existe
 - **Reintentos de Fase 3: máximo 2 en total**
-- **Modelos:** Fase 0/1 LITE/4 → `haiku` · Fase 0.5/1 FULL/2/3/5 → `sonnet`
+- **Modelos:** Fase 0/1 LITE/4 → `haiku` · Fase 0.5/1 FULL/2/2.5/3/5 → `sonnet`
 - **Aliases siempre** — usá `sonnet` y `haiku` sin versión, se resuelven al modelo más reciente
 
 ## Recursos
