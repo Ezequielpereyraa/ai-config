@@ -91,7 +91,7 @@ LITE: `1, 2, 3, 4`
 
 ### 2. Detectar stack
 
-Leer `package.json`. Mapping:
+Leer `package.json` (determinístico — los sub-agentes no lo leen por su cuenta). Mapping:
 
 | Dep | Skill |
 |---|---|
@@ -101,8 +101,13 @@ Leer `package.json`. Mapping:
 | `@nestjs/*` | `nestjs` |
 | `vitest` | `vitest` |
 
-Siempre cargar: `my-code-style`, `my-perf-patterns`, `my-error-handling`.
-Leer cada SKILL.md detectada antes de continuar.
+**Registrar la lista de skills detectadas — NO leer el contenido acá.**
+Los sub-agentes que las necesitan (Fase 3 implementación, Fase 4 QA) las leen en su propio prompt. Si el harness ya auto-cargó alguna por matching de description, evitamos doble carga.
+
+Skills base SIEMPRE en la lista (se pasan a Fase 3 y Fase 4):
+- `my-code-style`
+- `my-perf-patterns`
+- `my-error-handling`
 
 ### 3. Evaluar routing FULL vs LITE
 
