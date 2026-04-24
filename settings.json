@@ -92,7 +92,8 @@
       "Bash(git push --force:*)",
       "Bash(git rebase:*)",
       "Bash(git reset --hard:*)"
-    ]
+    ],
+    "defaultMode": "auto"
   },
   "statusLine": {
     "type": "command",
@@ -118,5 +119,6 @@
       "structured_markdown": true,
       "production_code": true
     }
-  }
+  },
+  "skipAutoPermissionPrompt": true
 }
