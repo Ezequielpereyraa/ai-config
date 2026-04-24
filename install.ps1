@@ -65,23 +65,33 @@ if (Test-Path $statuslineSrc) {
     Link-Or-Copy "statusline.sh" "statusline.sh"
 }
 
-# Skills — directorio completo
-$skillsSrc = Join-Path $RepoDir "skills"
-$skillsDst = Join-Path $ClaudeDir "skills"
+function Link-Or-Copy-Dir {
+    param(
+        [string]$Name
+    )
 
-if (Test-Path $skillsDst) {
-    $backupPath = "$skillsDst.backup"
-    Write-Host "  backup: $skillsDst → $backupPath"
-    Move-Item -Path $skillsDst -Destination $backupPath -Force
+    $src = Join-Path $RepoDir $Name
+    $dst = Join-Path $ClaudeDir $Name
+
+    if (Test-Path $dst) {
+        $backupPath = "$dst.backup"
+        Write-Host "  backup: $dst → $backupPath"
+        Move-Item -Path $dst -Destination $backupPath -Force
+    }
+
+    if ($UseSymlinks) {
+        New-Item -ItemType SymbolicLink -Path $dst -Target $src | Out-Null
+        Write-Host "  ✓ (symlink) $dst → $src"
+    } else {
+        Copy-Item -Path $src -Destination $dst -Recurse -Force
+        Write-Host "  ✓ (copy)    $dst ← $src"
+    }
 }
 
-if ($UseSymlinks) {
-    New-Item -ItemType SymbolicLink -Path $skillsDst -Target $skillsSrc | Out-Null
-    Write-Host "  ✓ (symlink) $skillsDst → $skillsSrc"
-} else {
-    Copy-Item -Path $skillsSrc -Destination $skillsDst -Recurse -Force
-    Write-Host "  ✓ (copy)    $skillsDst ← $skillsSrc"
-}
+# Directorios completos
+Link-Or-Copy-Dir "skills"
+Link-Or-Copy-Dir "commands"
+Link-Or-Copy-Dir "output-styles"
 
 Write-Host ""
 
