@@ -43,7 +43,8 @@ function Link-Or-Copy {
     if (Test-Path $dst) {
         $backupPath = "$dst.backup"
         Write-Host "  backup: $dst → $backupPath"
-        Move-Item -Path $dst -Destination $backupPath -Force
+        if (Test-Path $backupPath) { Remove-Item -Path $backupPath -Recurse -Force }
+        Move-Item -Path $dst -Destination $backupPath
     }
 
     if ($UseSymlinks) {
@@ -76,7 +77,8 @@ function Link-Or-Copy-Dir {
     if (Test-Path $dst) {
         $backupPath = "$dst.backup"
         Write-Host "  backup: $dst → $backupPath"
-        Move-Item -Path $dst -Destination $backupPath -Force
+        if (Test-Path $backupPath) { Remove-Item -Path $backupPath -Recurse -Force }
+        Move-Item -Path $dst -Destination $backupPath
     }
 
     if ($UseSymlinks) {
