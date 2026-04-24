@@ -38,15 +38,26 @@ if [ -f "$REPO_DIR/statusline.sh" ]; then
   link "statusline.sh" "statusline.sh"
 fi
 
-# Skills: symlink del directorio completo
-if [ -L "$CLAUDE_DIR/skills" ]; then
-  rm "$CLAUDE_DIR/skills"
-elif [ -d "$CLAUDE_DIR/skills" ]; then
-  echo "  backup: $CLAUDE_DIR/skills → $CLAUDE_DIR/skills.backup"
-  mv "$CLAUDE_DIR/skills" "$CLAUDE_DIR/skills.backup"
-fi
-ln -sf "$REPO_DIR/skills" "$CLAUDE_DIR/skills"
-echo "  ✓ $CLAUDE_DIR/skills → $REPO_DIR/skills"
+# Función para linkear directorios completos (con backup si existe y no es symlink)
+link_dir() {
+  local src="$REPO_DIR/$1"
+  local dst="$CLAUDE_DIR/$1"
+
+  if [ -L "$dst" ]; then
+    rm "$dst"
+  elif [ -d "$dst" ]; then
+    echo "  backup: $dst → $dst.backup"
+    mv "$dst" "$dst.backup"
+  fi
+
+  ln -sf "$src" "$dst"
+  echo "  ✓ $dst → $src"
+}
+
+# Directorios completos
+link_dir "skills"
+link_dir "commands"
+link_dir "output-styles"
 
 echo ""
 echo "✅ Listo. Reiniciá Claude Code para aplicar los cambios."
