@@ -1,6 +1,6 @@
 # ai-config
 
-Configuracion personal de Claude Code — comportamiento, convenciones y skills para un flujo de trabajo senior fullstack/SaaS.
+Configuracion personal de Claude Code — comportamiento, convenciones, comandos y skills para un flujo de trabajo senior fullstack/SaaS centrado en analisis, arquitectura, planificacion, implementacion controlada y review.
 
 ## Que es esto
 
@@ -9,7 +9,8 @@ Un conjunto de archivos que configuran como se comporta Claude Code en todos tus
 - **`CLAUDE.md`** — Instrucciones globales: personalidad, tono, convenciones de codigo, reglas de auto-carga de skills y perfil de usuario. Claude lo lee en cada conversacion.
 - **`settings.json`** — Permisos (que herramientas puede usar Claude, cuales estan bloqueadas, cuales requieren confirmacion), status line personalizado y preferencias de output.
 - **`statusline.sh`** — Barra de estado personalizada dentro de Claude Code: muestra el modelo activo, directorio actual, rama de git, lineas agregadas/eliminadas y uso de la ventana de contexto como barra de progreso.
-- **`skills/`** — Skills modulares. Cada skill es un `SKILL.md` que Claude lee antes de escribir codigo en ese contexto (React, Next.js, NestJS, Supabase, Tailwind, etc.). Incluye el skill `dev-pipeline` — un flujo de trabajo multi-agente de 5 fases que investiga antes de implementar, propone una lista de tareas, espera aprobacion y luego codea.
+- **`commands/`** — Slash commands del workflow: analizar, planificar, ejecutar, revisar, preparar PR y debuggear causa raiz.
+- **`skills/`** — Skills modulares. Cada skill es un `SKILL.md` que Claude lee antes de escribir o revisar codigo en ese contexto (React, Next.js, NestJS, Tailwind, testing, arquitectura, etc.). Incluye `dev-pipeline`, que ahora es motor de implementacion post-plan.
 
 ## Para quien es
 
@@ -22,10 +23,37 @@ Desarrolladores senior que usan Claude Code a diario y quieren que se comporte c
 - Tailwind CSS v4
 - TanStack Query, React Hook Form, Framer Motion, Zustand
 
-No esta disenado para principiantes. Claude esta configurado para hacer push back en codigo-sin-contexto, aplicar convenciones y explicar tradeoffs — no para hacer lo que le pidas sin cuestionarlo.
+No esta disenado para principiantes. Claude esta configurado para hacer push back en codigo-sin-contexto, analizar opciones, desafiar soluciones, estimar incertidumbre, aplicar convenciones y explicar tradeoffs — no para hacer lo que le pidas sin cuestionarlo.
+
+## Workflow recomendado
+
+```text
+Ticket
+  -> /analyze-feature
+  -> /create-plan
+  -> /dev-pipeline
+  -> /review-work
+  -> /create-pr
+```
+
+Para bugs:
+
+```text
+Bug
+  -> /debug-root-cause
+  -> fix minimo o /dev-pipeline si toca varios archivos
+  -> /review-work
+  -> /create-pr
+```
+
+Regla clave: `/dev-pipeline` no es el primer paso para features/refactors medianos o grandes. Primero tiene que existir analisis, solucion elegida, plan aprobado, criterios de aceptacion, riesgos y fuera de scope.
 
 ## Que enforcea
 
+- Analisis antes de implementacion para cambios no triviales
+- Opciones, challenge y estimacion dentro de `/analyze-feature`
+- Plan tecnico ejecutable antes de `/dev-pipeline`
+- Review antes de PR
 - Funciones `const` en todos lados — nunca keyword `function`
 - Patron `interface IXxxProps` para props de React
 - Separacion estricta de modulos: `components/` / `hooks/` / `utils/` / `services/` / `mappers/` / `types/`
@@ -86,11 +114,25 @@ Punto de entrada unificado para instalar y actualizar todo:
 **Por que re-ejecutar en vez de solo `git pull`:**
 Las skills existentes se actualizan solas (son symlinks). Pero si se agrega una skill nueva al repo, hay que re-ejecutar el script para crear el symlink correspondiente. `./ai.sh update` hace el pull y la sincronizacion en un solo paso.
 
+## Comandos incluidos
+
+| Command | Cuando se usa |
+|---|---|
+| `/analyze-feature` | Ticket nuevo, requerimiento, refactor mediano/grande. Analiza contexto, opciones, challenge, riesgos y estimacion. |
+| `/create-plan` | Despues de elegir una solucion. Produce plan tecnico ejecutable para `/dev-pipeline`. |
+| `/dev-pipeline` | Despues de analisis + plan aprobado. Implementa, verifica y deja listo para review. |
+| `/review-work` | Review de diff, PR o arquitectura. Unifica code review y architecture review. |
+| `/debug-root-cause` | Bugs. Investiga causa raiz antes del fix. |
+| `/create-pr` | Antes de abrir PR. Genera contexto, solucion, testing, riesgos y rollback. |
+
+Para tareas muy chicas no hace falta comando: hablale por chat. Si el cambio es claro, acotado y sin decision de arquitectura, Claude debe resolverlo directo con minimo ceremony.
+
 ## Skills incluidos
 
 | Skill | Cuando se activa |
 |---|---|
-| `dev-pipeline` | Cualquier feature, componente, refactor o tarea multi-archivo |
+| `dev-pipeline` | Implementacion post-plan con scope aprobado |
+| `engineering-standards` | Codigo/review TS/JS: estilo, boundaries, errores y performance |
 | `code-investigator` | "Como funciona X?", "explicame este flujo" |
 | `react-19` | Componentes React, hooks, JSX |
 | `nextjs` | Routing de Next.js, RSC, Server Actions, data fetching |
@@ -100,6 +142,8 @@ Las skills existentes se actualizan solas (son symlinks). Pero si se agrega una 
 | `vitest` | Tests unitarios |
 | `architecture-patterns` | Refactors Clean/Hexagonal/DDD (backend) |
 | `feature-slice` | Feature-Slice Design para frontend a escala (opcional) |
+| `design-init` | Genera `.claude/DESIGN.md` a partir de tokens existentes |
+| `ui-design` | UI/UX, responsive, layout, color, motion y performance visual |
 
 ## Cursor — nota sobre Global Rules
 

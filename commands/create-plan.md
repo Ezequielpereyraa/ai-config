@@ -1,0 +1,73 @@
+---
+description: Convierte una solucion aprobada en un plan tecnico ejecutable. No implementa.
+argument-hint: [solucion aprobada, link al analisis o notas]
+---
+
+Solucion aprobada: `$ARGUMENTS`.
+
+## Regla critica
+
+**NO escribas codigo.** El entregable es un plan apto para `/dev-pipeline`.
+
+## Proceso
+
+1. Leer el analisis aprobado o reconstruirlo desde el contexto disponible.
+2. Leer codigo relevante para ubicar patrones y reutilizables.
+3. Definir pasos incrementales verificables.
+4. Separar decisiones no negociables de detalles de implementacion.
+5. Declarar riesgos residuales y tests esperados.
+6. Parar y pedir aprobacion.
+
+## Output obligatorio
+
+### Decision aprobada
+[Que opcion se eligio y por que]
+
+### Diseño tecnico
+- Entrada:
+- Salida:
+- Capas afectadas:
+- Boundaries:
+- Datos / contratos:
+
+### Reutilizables
+- `path` — como se usa o adapta
+
+### Archivos afectados
+
+| Archivo | Accion | Responsabilidad |
+|---|---|---|
+| `path` | crear / modificar | ... |
+
+### Plan incremental
+
+1. [ ] Paso — archivos — verificacion concreta
+2. [ ] Paso — archivos — verificacion concreta
+3. [ ] Paso — archivos — verificacion concreta
+
+Cada paso debe dejar el codigo en un estado entendible y verificable.
+
+### Testing y QA
+- Unit:
+- Integracion:
+- Manual:
+- Comandos sugeridos:
+
+### Riesgos residuales
+- [Alto/Medio/Bajo] Riesgo — mitigacion
+
+### Input para `/dev-pipeline`
+
+```md
+Ticket:
+Solucion elegida:
+Decisiones no negociables:
+Fuera de scope:
+Criterios de aceptacion:
+Plan aprobado:
+Checks esperados:
+Riesgos conocidos:
+```
+
+### Proximo paso
+Esperar aprobacion explicita antes de ejecutar `/dev-pipeline`.
