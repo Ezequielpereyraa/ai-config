@@ -1,4 +1,4 @@
-# install.ps1 — Sincroniza ai-config con ~/.claude en Windows
+# install.ps1 — Sincroniza ai-config con herramientas IA en Windows
 # Uso: .\install.ps1
 # Intenta crear symlinks (requiere Developer Mode o admin).
 # Si falla, copia los archivos directamente.
@@ -7,14 +7,40 @@ $ErrorActionPreference = "Stop"
 
 $RepoDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $ClaudeDir = Join-Path $env:USERPROFILE ".claude"
+$OpenCodeDir = Join-Path $env:USERPROFILE ".config\opencode"
+$CodexRulesDir = Join-Path $env:USERPROFILE ".codex\rules"
 
 Write-Host "→ ai-config install desde: $RepoDir"
-Write-Host "→ Target: $ClaudeDir"
+Write-Host "→ Claude target: $ClaudeDir"
+Write-Host "→ OpenCode target: $OpenCodeDir"
+Write-Host "→ Codex target: $CodexRulesDir"
 Write-Host ""
 
 if (-not (Test-Path $ClaudeDir)) {
     New-Item -ItemType Directory -Path $ClaudeDir | Out-Null
 }
+
+if (-not (Test-Path $OpenCodeDir)) {
+    New-Item -ItemType Directory -Path $OpenCodeDir | Out-Null
+}
+
+if (-not (Test-Path $CodexRulesDir)) {
+    New-Item -ItemType Directory -Path $CodexRulesDir | Out-Null
+}
+
+function Remove-Stale-Symlink-Backups {
+    param(
+        [string]$Dir
+    )
+
+    Get-ChildItem -LiteralPath $Dir -Force -ErrorAction SilentlyContinue |
+        Where-Object { $_.Name -like "*.backup" -and $_.LinkType -eq "SymbolicLink" } |
+        Remove-Item -Force
+}
+
+Remove-Stale-Symlink-Backups $ClaudeDir
+Remove-Stale-Symlink-Backups $OpenCodeDir
+Remove-Stale-Symlink-Backups $CodexRulesDir
 
 $UseSymlinks = $false
 try {
@@ -34,17 +60,23 @@ Write-Host ""
 function Link-Or-Copy {
     param(
         [string]$RelSrc,
-        [string]$RelDst
+        [string]$RelDst,
+        [string]$TargetDir = $ClaudeDir
     )
 
     $src = Join-Path $RepoDir $RelSrc
-    $dst = Join-Path $ClaudeDir $RelDst
+    $dst = Join-Path $TargetDir $RelDst
 
     if (Test-Path $dst) {
-        $backupPath = "$dst.backup"
-        Write-Host "  backup: $dst → $backupPath"
-        if (Test-Path $backupPath) { Remove-Item -Path $backupPath -Recurse -Force }
-        Move-Item -Path $dst -Destination $backupPath
+        $existing = Get-Item -LiteralPath $dst -Force
+        if ($existing.LinkType -eq "SymbolicLink" -and $existing.Target -eq $src) {
+            Remove-Item -LiteralPath $dst -Force
+        } else {
+            $backupPath = "$dst.backup"
+            Write-Host "  backup: $dst → $backupPath"
+            if (Test-Path $backupPath) { Remove-Item -Path $backupPath -Recurse -Force }
+            Move-Item -Path $dst -Destination $backupPath
+        }
     }
 
     if ($UseSymlinks) {
@@ -68,17 +100,24 @@ if (Test-Path $statuslineSrc) {
 
 function Link-Or-Copy-Dir {
     param(
-        [string]$Name
+        [string]$RelSrc,
+        [string]$RelDst = $RelSrc,
+        [string]$TargetDir = $ClaudeDir
     )
 
-    $src = Join-Path $RepoDir $Name
-    $dst = Join-Path $ClaudeDir $Name
+    $src = Join-Path $RepoDir $RelSrc
+    $dst = Join-Path $TargetDir $RelDst
 
     if (Test-Path $dst) {
-        $backupPath = "$dst.backup"
-        Write-Host "  backup: $dst → $backupPath"
-        if (Test-Path $backupPath) { Remove-Item -Path $backupPath -Recurse -Force }
-        Move-Item -Path $dst -Destination $backupPath
+        $existing = Get-Item -LiteralPath $dst -Force
+        if ($existing.LinkType -eq "SymbolicLink" -and $existing.Target -eq $src) {
+            Remove-Item -LiteralPath $dst -Force
+        } else {
+            $backupPath = "$dst.backup"
+            Write-Host "  backup: $dst → $backupPath"
+            if (Test-Path $backupPath) { Remove-Item -Path $backupPath -Recurse -Force }
+            Move-Item -Path $dst -Destination $backupPath
+        }
     }
 
     if ($UseSymlinks) {
@@ -94,6 +133,20 @@ function Link-Or-Copy-Dir {
 Link-Or-Copy-Dir "skills"
 Link-Or-Copy-Dir "commands"
 Link-Or-Copy-Dir "output-styles"
+
+# OpenCode
+$opencodeConfigSrc = Join-Path $RepoDir "opencode\opencode.jsonc"
+if (Test-Path $opencodeConfigSrc) {
+    Link-Or-Copy "opencode\opencode.jsonc" "opencode.jsonc" $OpenCodeDir
+}
+Link-Or-Copy-Dir "skills" "skills" $OpenCodeDir
+Link-Or-Copy-Dir "commands" "commands" $OpenCodeDir
+
+# Codex
+$codexRulesSrc = Join-Path $RepoDir "codex\rules\default.rules"
+if (Test-Path $codexRulesSrc) {
+    Link-Or-Copy "codex\rules\default.rules" "default.rules" $CodexRulesDir
+}
 
 Write-Host ""
 
