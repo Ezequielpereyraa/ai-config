@@ -197,8 +197,7 @@ Default mapping:
 - React: `react-19`
 - NestJS: `nestjs`
 - Tailwind: `tailwind-4`
-- Tests: `vitest`
-- Architecture: `architecture-patterns`
+- Architecture / refactors: `feature-slice`
 - UI: `ui-design`
 - Unknown flow investigation: `code-investigator`
 - Implementation from approved plan: `dev-pipeline`
