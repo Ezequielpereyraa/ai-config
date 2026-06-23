@@ -4,8 +4,8 @@ This is the global Codex adapter. It is not the source of truth.
 
 Source of truth:
 
-- `C:\Users\aylen\ai-config\CORE.md`
-- `C:\Users\aylen\ai-config\WORKFLOW.md`
+- `C:\Users\Eze\ai-config\CORE.md`
+- `C:\Users\Eze\ai-config\WORKFLOW.md`
 
 When those files are accessible, follow them as the primary behavior and workflow guidance.
 

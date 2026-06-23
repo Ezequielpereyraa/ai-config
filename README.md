@@ -126,7 +126,7 @@ Reiniciar las herramientas abiertas despues de instalar para que carguen la conf
 
 | Target | Instala |
 |---|---|
-| `~/.claude` | `CLAUDE.md`, `settings.json`, `statusline.sh`, `commands/`, `skills/`, `output-styles/` |
+| `~/.claude` | `CLAUDE.md`, `settings.json`, `statusline.sh`, `commands/`, `skills/` |
 | `~/.config/opencode` | `opencode.jsonc`, `commands/`, `skills/` |
 | `~/.codex` | `AGENTS.md` |
 | `~/.codex/rules` | `default.rules` |

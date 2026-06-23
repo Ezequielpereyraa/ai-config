@@ -63,8 +63,7 @@ install_claude() {
   fi
 
   link_dir "skills" "$CLAUDE_DIR" "skills"
-  link_dir "commands" "$CLAUDE_DIR" "commands"
-  link_dir "output-styles" "$CLAUDE_DIR" "output-styles"
+    link_dir "commands" "$CLAUDE_DIR" "commands"
 }
 
 install_opencode() {

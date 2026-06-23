@@ -139,7 +139,6 @@ function Link-Or-Copy-Dir {
 # Directorios completos
 Link-Or-Copy-Dir "skills"
 Link-Or-Copy-Dir "commands"
-Link-Or-Copy-Dir "output-styles"
 
 # OpenCode
 $opencodeConfigSrc = Join-Path $RepoDir "opencode\opencode.jsonc"
