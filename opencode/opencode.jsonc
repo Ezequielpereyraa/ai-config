@@ -1,8 +1,8 @@
 {
   "$schema": "https://opencode.ai/config.json",
   "instructions": [
-    "{env:USERPROFILE}/ai-config/CORE.md",
-    "{env:USERPROFILE}/ai-config/WORKFLOW.md"
+    "C:/Users/aylen/ai-config/CORE.md",
+    "C:/Users/aylen/ai-config/WORKFLOW.md"
   ],
   "permission": {
     "skill": {

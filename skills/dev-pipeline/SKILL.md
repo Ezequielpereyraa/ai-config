@@ -43,14 +43,7 @@ No usar cuando:
 
 ## Routing
 
-Antes de implementar, clasificar:
-
-| Caso | Accion |
-|---|---|
-| Cambio trivial, 1 archivo, sin logica nueva | Resolver directo por chat. |
-| Bug con causa no entendida | Derivar a `/debug-root-cause`. |
-| Feature/refactor sin plan aprobado | Frenar y pedir `/analyze-feature` o `/create-plan`. |
-| Plan aprobado y scope claro | Ejecutar pipeline. |
+La clasificacion de tarea se decide en `WORKFLOW.md`. Esta skill solo aplica cuando el resultado de esa clasificacion es "ejecutar con plan aprobado".
 
 ## Preflight
 
@@ -129,9 +122,10 @@ Orden sugerido:
 4. Componentes / paginas / wiring.
 5. Tests o ajustes de tests.
 
-### Fase 3 — QA mecanico
+### Fase 3 — Deslop + QA mecanico
 
-Ejecutar checks razonables para el repo:
+Primero, ejecutar `deslop` sobre el diff para limpiar ruido generado por IA (comentarios inservibles, `any` casts, defensiveness anormal).  
+Luego, ejecutar checks razonables para el repo:
 
 - Typecheck si existe.
 - Tests relevantes si existen.
@@ -145,6 +139,7 @@ Output:
 ```md
 ## QA Mecanico
 
+- Deslop:
 - Typecheck:
 - Tests:
 - Lint:
