@@ -1,72 +1,101 @@
 # ai-config
 
-Configuracion personal de Claude Code — comportamiento, convenciones, comandos y skills para un flujo de trabajo senior fullstack/SaaS centrado en analisis, arquitectura, planificacion, implementacion controlada y review.
+Configuracion personal para asistentes IA de codigo: Claude Code, OpenCode y Codex.
 
-## Que es esto
+El objetivo es mejorar decisiones y respuestas en cualquier CLI/modelo sin cargar instrucciones innecesarias ni forzar procesos largos para tareas simples.
 
-Un conjunto de archivos que configuran como se comporta Claude Code en todos tus proyectos:
+## Que Es Esto
 
-- **`CLAUDE.md`** — Instrucciones globales: personalidad, tono, convenciones de codigo, reglas de auto-carga de skills y perfil de usuario. Claude lo lee en cada conversacion.
-- **`settings.json`** — Permisos (que herramientas puede usar Claude, cuales estan bloqueadas, cuales requieren confirmacion), status line personalizado y preferencias de output.
-- **`statusline.sh`** — Barra de estado personalizada dentro de Claude Code: muestra el modelo activo, directorio actual, rama de git, lineas agregadas/eliminadas y uso de la ventana de contexto como barra de progreso.
-- **`commands/`** — Slash commands del workflow: analizar, planificar, ejecutar, revisar, preparar PR y debuggear causa raiz.
-- **`skills/`** — Skills modulares. Cada skill es un `SKILL.md` que Claude lee antes de escribir o revisar codigo en ese contexto (React, Next.js, NestJS, Tailwind, testing, arquitectura, etc.). Incluye `dev-pipeline`, que ahora es motor de implementacion post-plan.
+`ai-config` es el source of truth versionado para comportamiento, workflow, comandos, skills e instalacion.
 
-## Para quien es
+Arquitectura actual:
 
-Desarrolladores senior que usan Claude Code a diario y quieren que se comporte como un ingeniero senior competente, no como un bot de tutoriales. Util especificamente si trabajas con:
+| Archivo | Rol |
+|---|---|
+| `CORE.md` | Reglas globales minimas, neutrales y siempre reutilizables. |
+| `WORKFLOW.md` | Matriz para decidir entre chat directo, investigacion, analisis, plan, implementacion y review. |
+| `CLAUDE.md` | Adapter liviano para Claude Code. Carga `CORE.md` y `WORKFLOW.md`. |
+| `opencode/opencode.jsonc` | Config global de OpenCode. Carga `CORE.md` y `WORKFLOW.md`. |
+| `codex/AGENTS.md` | Adapter global de Codex. Resume y apunta al criterio neutral. |
+| `codex/rules/default.rules` | Reglas/permisos operativos de Codex. No contiene workflow. |
+| `commands/` | Slash commands para analisis, plan, debug, implementacion, review y PR. |
+| `skills/` | Contexto especializado bajo demanda. |
+| `install.ps1`, `install.sh`, `ai.sh` | Instalacion/sync. No contienen reglas de comportamiento. |
 
-- Next.js (App Router, RSC, Server Actions)
-- TypeScript strict
-- NestJS (Controller → Service → Repository)
-- Firebase / Firestore o Supabase / PostgreSQL
-- Tailwind CSS v4
-- TanStack Query, React Hook Form, Framer Motion, Zustand
+## Principio Central
 
-No esta disenado para principiantes. Claude esta configurado para hacer push back en codigo-sin-contexto, analizar opciones, desafiar soluciones, estimar incertidumbre, aplicar convenciones y explicar tradeoffs — no para hacer lo que le pidas sin cuestionarlo.
+Usar el menor proceso que preserve correctness.
 
-## Workflow recomendado
+- Tareas simples: resolver directo y resumir breve.
+- Tareas medianas: analisis compacto y plan corto.
+- Tareas grandes/riesgosas: analisis, decision explicita y aprobacion antes de implementar.
+- Reviews: findings primero.
+- Si falta informacion que afecta correctness: preguntar una cosa concreta, no inventar.
 
-```text
-Ticket
-  -> /analyze-feature
-  -> /create-plan
-  -> /dev-pipeline
-  -> /review-work
-  -> /create-pr
+## Workflow
+
+La decision inicial vive en `WORKFLOW.md`:
+
+| Tipo | Accion default |
+|---|---|
+| `trivial` | resolver directo |
+| `small` | resolver directo + resumen breve |
+| `medium` | analisis compacto + plan corto |
+| `large` | analisis completo + aprobacion |
+| `risky` | frenar, analizar y pedir aprobacion |
+| `investigation` | explicar flujo, no editar |
+| `review` | findings primero |
+
+No usar comandos pesados para cambios chicos salvo pedido explicito.
+
+## Comandos
+
+| Command | Cuando usarlo |
+|---|---|
+| `/debug-root-cause` | Bugs, errores, stack traces, builds fallidos o comportamiento inesperado. |
+| `/analyze-feature` | Features/refactors medianos, grandes, riesgosos o ambiguos. |
+| `/create-plan` | Cuando ya hay solucion elegida y hace falta plan ejecutable. |
+| `/dev-pipeline` | Solo con plan aprobado, scope claro, criterios, checks y riesgos. |
+| `/review-work` | Review de diff, PR, arquitectura o cambio significativo. |
+| `/create-pr` | Preparar descripcion de PR breve, honesta y revisable. |
+
+Los comandos fueron ajustados para tener salida compacta por defecto y modo completo solo cuando el riesgo/tamano lo justifica.
+
+## Skills
+
+| Skill | Uso |
+|---|---|
+| `code-investigator` | Entender flujos/codigo sin editar. |
+| `dev-pipeline` | Ejecutar un plan aprobado. |
+| `engineering-standards` | Estilo, boundaries, errores y performance en TS/JS. |
+| `typescript` | TypeScript strict, tipos, interfaces, generics. |
+| `react-19` | React 19, componentes, hooks y React Compiler. |
+| `nextjs` | Next.js App Router, RSC, data fetching, Server Actions. |
+| `nestjs` | NestJS modules, controllers, services, guards, DTOs. |
+| `tailwind-4` | Tailwind CSS 4, `cn()`, tokens y clases. |
+| `ui-design` | UI/UX, responsive, layout, color, motion y performance visual. |
+| `feature-slice` | FSD solo para reestructuras frontend grandes o acoplamiento real. |
+| `design-init` | Generar `DESIGN.md` desde tokens existentes. |
+| `deslop` | Limpiar codigo AI-generated o inconsistente. |
+| `grill-with-docs` | Entrevista tecnica para sharpenear planes y documentacion. |
+
+Las skills se usan como contexto puntual, no como reglas globales.
+
+## Instalacion
+
+Requiere tener instalada la herramienta que vayas a usar: Claude Code, OpenCode o Codex.
+
+### Windows
+
+```powershell
+git clone https://github.com/Ezequielpereyraa/ai-config.git ~/ai-config
+cd ~/ai-config
+.\install.ps1
 ```
 
-Para bugs:
+El script intenta crear symlinks. Si Windows no lo permite, copia archivos como fallback.
 
-```text
-Bug
-  -> /debug-root-cause
-  -> fix minimo o /dev-pipeline si toca varios archivos
-  -> /review-work
-  -> /create-pr
-```
-
-Regla clave: `/dev-pipeline` no es el primer paso para features/refactors medianos o grandes. Primero tiene que existir analisis, solucion elegida, plan aprobado, criterios de aceptacion, riesgos y fuera de scope.
-
-## Que enforcea
-
-- Analisis antes de implementacion para cambios no triviales
-- Opciones, challenge y estimacion dentro de `/analyze-feature`
-- Plan tecnico ejecutable antes de `/dev-pipeline`
-- Review antes de PR
-- Funciones `const` en todos lados — nunca keyword `function`
-- Patron `interface IXxxProps` para props de React
-- Separacion estricta de modulos: `components/` / `hooks/` / `utils/` / `services/` / `mappers/` / `types/`
-- Max ~100 lineas por componente, ~150 por archivo
-- Patron early return, lookup objects en vez de switch/if-else chains
-- TypeScript strict — sin `any`, sin casteos sin validar
-- Sin `useEffect` para data fetching — Server Components o TanStack Query
-- Sin `"use client"` por defecto — Server Component primero
-- `export default` por archivo de componente + re-export en `index.ts` — sin imports con nombre repetido
-
-## Como instalar y actualizar
-
-Requiere [Claude Code](https://docs.anthropic.com/en/docs/claude-code) instalado.
+Para symlinks en Windows, activar Modo desarrollador o ejecutar PowerShell como administrador.
 
 ### Linux / macOS
 
@@ -77,80 +106,37 @@ chmod +x ai.sh
 ./ai.sh install
 ```
 
-### Windows
-
-```powershell
-git clone https://github.com/Ezequielpereyraa/ai-config.git ~/ai-config
-cd ~/ai-config
-.\install.ps1
-```
-
-El script de Windows intenta crear symlinks primero. Si no puede (sin permisos), copia los archivos como fallback.
-
-**Para tener symlinks en Windows** (recomendado):
-- Ir a **Configuracion → Para desarrolladores** y activar **Modo desarrollador**, o
-- Ejecutar PowerShell como Administrador
-
----
-
-Los archivos existentes se respaldan con sufijo `.backup` antes de ser reemplazados.
-
-Reinicia Claude Code despues de instalar para que los cambios tomen efecto.
-
-## CLI — ai.sh
-
-Punto de entrada unificado para instalar y actualizar todo:
+## CLI
 
 ```bash
-./ai.sh install           # instala todo (claude + cursor)
+./ai.sh install           # instala todo (claude + opencode + codex)
 ./ai.sh install claude    # solo claude
-./ai.sh install cursor    # solo cursor
+./ai.sh install opencode  # solo opencode
+./ai.sh install codex     # solo codex
 
 ./ai.sh update            # git pull + sincroniza todo
 ./ai.sh update claude     # git pull + solo claude
-./ai.sh update cursor     # git pull + solo cursor
+./ai.sh update opencode   # git pull + solo opencode
+./ai.sh update codex      # git pull + solo codex
 ```
 
-**Por que re-ejecutar en vez de solo `git pull`:**
-Las skills existentes se actualizan solas (son symlinks). Pero si se agrega una skill nueva al repo, hay que re-ejecutar el script para crear el symlink correspondiente. `./ai.sh update` hace el pull y la sincronizacion en un solo paso.
+Reiniciar las herramientas abiertas despues de instalar para que carguen la configuracion nueva.
 
-## Comandos incluidos
+## Que Instala
 
-| Command | Cuando se usa |
+| Target | Instala |
 |---|---|
-| `/analyze-feature` | Ticket nuevo, requerimiento, refactor mediano/grande. Analiza contexto, opciones, challenge, riesgos y estimacion. |
-| `/create-plan` | Despues de elegir una solucion. Produce plan tecnico ejecutable para `/dev-pipeline`. |
-| `/dev-pipeline` | Despues de analisis + plan aprobado. Implementa, verifica y deja listo para review. |
-| `/review-work` | Review de diff, PR o arquitectura. Unifica code review y architecture review. |
-| `/debug-root-cause` | Bugs. Investiga causa raiz antes del fix. |
-| `/create-pr` | Antes de abrir PR. Genera contexto, solucion, testing, riesgos y rollback. |
+| `~/.claude` | `CLAUDE.md`, `settings.json`, `statusline.sh`, `commands/`, `skills/`, `output-styles/` |
+| `~/.config/opencode` | `opencode.jsonc`, `commands/`, `skills/` |
+| `~/.codex` | `AGENTS.md` |
+| `~/.codex/rules` | `default.rules` |
 
-Para tareas muy chicas no hace falta comando: hablale por chat. Si el cambio es claro, acotado y sin decision de arquitectura, Claude debe resolverlo directo con minimo ceremony.
+## Mantenimiento
 
-## Skills incluidos
-
-| Skill | Cuando se activa |
-|---|---|
-| `dev-pipeline` | Implementacion post-plan con scope aprobado |
-| `engineering-standards` | Codigo/review TS/JS: estilo, boundaries, errores y performance |
-| `code-investigator` | "Como funciona X?", "explicame este flujo" |
-| `react-19` | Componentes React, hooks, JSX |
-| `nextjs` | Routing de Next.js, RSC, Server Actions, data fetching |
-| `typescript` | Tipos, interfaces, generics |
-| `tailwind-4` | Clases de Tailwind |
-| `nestjs` | Modulos, controllers, services, guards, DTOs de NestJS |
-| `vitest` | Tests unitarios |
-| `architecture-patterns` | Refactors Clean/Hexagonal/DDD (backend) |
-| `feature-slice` | Feature-Slice Design para frontend a escala (opcional) |
-| `design-init` | Genera `.claude/DESIGN.md` a partir de tokens existentes |
-| `ui-design` | UI/UX, responsive, layout, color, motion y performance visual |
-
-## Cursor — nota sobre Global Rules
-
-Las Global Rules de Cursor son el único paso manual que el CLI no puede automatizar. Si las modificás en el repo, hay que copiar el contenido de `cursor/global-rules.md` y pegarlo en Cursor → Settings → General → Rules for AI.
-
-## Requisitos
-
-- Claude Code CLI
-- `jq` (usado por `statusline.sh`)
-- Opcional: `bat`, `rg` (ripgrep), `fd`, `sd`, `eza` — Claude esta configurado para preferir estas sobre las herramientas Unix estandar
+- Cambiar comportamiento global en `CORE.md`.
+- Cambiar decision de proceso en `WORKFLOW.md`.
+- Cambiar reglas especificas de Claude en `CLAUDE.md`.
+- Cambiar reglas especificas de OpenCode en `opencode/opencode.jsonc`.
+- Cambiar adapter de Codex en `codex/AGENTS.md`.
+- Mantener `codex/rules/default.rules` solo para permisos/comandos.
+- No duplicar reglas de proyecto aca: cada repo debe tener su propio `AGENTS.md`.

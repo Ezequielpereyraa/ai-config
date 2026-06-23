@@ -2,12 +2,14 @@
 # ai.sh — CLI para instalar y actualizar ai-config
 #
 # Uso:
-#   ./ai.sh install           # instala todo (claude + cursor)
+#   ./ai.sh install           # instala todo (claude + opencode + codex)
 #   ./ai.sh install claude    # solo claude
-#   ./ai.sh install cursor    # solo cursor
+#   ./ai.sh install opencode  # solo opencode
+#   ./ai.sh install codex     # solo codex
 #   ./ai.sh update            # git pull + sincroniza todo
 #   ./ai.sh update claude     # git pull + solo claude
-#   ./ai.sh update cursor     # git pull + solo cursor
+#   ./ai.sh update opencode   # git pull + solo opencode
+#   ./ai.sh update codex      # git pull + solo codex
 
 set -e
 
@@ -19,24 +21,29 @@ print_usage() {
   echo "Uso: ./ai.sh <comando> [target]"
   echo ""
   echo "Comandos:"
-  echo "  install [claude|cursor]   Instala symlinks (default: todo)"
-  echo "  update  [claude|cursor]   git pull + sincroniza (default: todo)"
+  echo "  install [claude|opencode|codex]   Instala symlinks (default: todo)"
+  echo "  update  [claude|opencode|codex]   git pull + sincroniza (default: todo)"
   echo ""
   echo "Ejemplos:"
   echo "  ./ai.sh install"
-  echo "  ./ai.sh install cursor"
+  echo "  ./ai.sh install opencode"
   echo "  ./ai.sh update"
   echo "  ./ai.sh update claude"
 }
 
 run_install_claude() {
   echo "▸ Instalando Claude Code config..."
-  bash "$REPO_DIR/install.sh"
+  bash "$REPO_DIR/install.sh" claude
 }
 
-run_install_cursor() {
-  echo "▸ Instalando Cursor config..."
-  bash "$REPO_DIR/cursor/install-cursor.sh"
+run_install_opencode() {
+  echo "▸ Instalando OpenCode config..."
+  bash "$REPO_DIR/install.sh" opencode
+}
+
+run_install_codex() {
+  echo "▸ Instalando Codex config..."
+  bash "$REPO_DIR/install.sh" codex
 }
 
 run_git_pull() {
@@ -54,16 +61,21 @@ cmd_install() {
     all)
       run_install_claude
       echo ""
-      run_install_cursor
+      run_install_opencode
+      echo ""
+      run_install_codex
       ;;
     claude)
       run_install_claude
       ;;
-    cursor)
-      run_install_cursor
+    opencode)
+      run_install_opencode
+      ;;
+    codex)
+      run_install_codex
       ;;
     *)
-      echo "Target inválido: '$target'. Usá: claude | cursor"
+      echo "Target inválido: '$target'. Usá: claude | opencode | codex"
       exit 1
       ;;
   esac
@@ -78,16 +90,21 @@ cmd_update() {
     all)
       run_install_claude
       echo ""
-      run_install_cursor
+      run_install_opencode
+      echo ""
+      run_install_codex
       ;;
     claude)
       run_install_claude
       ;;
-    cursor)
-      run_install_cursor
+    opencode)
+      run_install_opencode
+      ;;
+    codex)
+      run_install_codex
       ;;
     *)
-      echo "Target inválido: '$target'. Usá: claude | cursor"
+      echo "Target inválido: '$target'. Usá: claude | opencode | codex"
       exit 1
       ;;
   esac

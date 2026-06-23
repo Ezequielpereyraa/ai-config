@@ -9,6 +9,8 @@ Solucion aprobada: `$ARGUMENTS`.
 
 **NO escribas codigo.** El entregable es un plan apto para `/dev-pipeline`.
 
+Si el cambio es `small` segun `WORKFLOW.md`, no generes un plan largo. Decí que el plan seria mas largo que la implementacion y recomendá resolver por chat.
+
 ## Proceso
 
 1. Leer el analisis aprobado o reconstruirlo desde el contexto disponible.
@@ -18,7 +20,34 @@ Solucion aprobada: `$ARGUMENTS`.
 5. Declarar riesgos residuales y tests esperados.
 6. Parar y pedir aprobacion.
 
-## Output obligatorio
+## Output
+
+Usar el menor formato que preserve correctness.
+
+### Plan corto (`medium` por defecto)
+
+Usar para cambios acotados con solucion clara:
+
+### Decision aprobada
+[Que opcion se eligio]
+
+### Plan incremental
+
+1. [ ] Paso — archivos — verificacion concreta
+2. [ ] Paso — archivos — verificacion concreta
+3. [ ] Paso — archivos — verificacion concreta
+
+### Validacion
+- Comandos/checks:
+- QA manual:
+- Riesgos:
+
+### Proximo paso
+Esperar aprobacion explicita antes de ejecutar `/dev-pipeline`, salvo que el usuario haya pedido implementar ahora.
+
+### Plan completo (`large` o `risky`)
+
+Usar solo si hay varias capas, contratos, datos, migracion o riesgo alto.
 
 ### Decision aprobada
 [Que opcion se eligio y por que]

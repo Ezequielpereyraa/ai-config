@@ -3,7 +3,7 @@ name: design-init
 description: >
   Skill invocable via /design-init. Escanea el proyecto, extrae tokens de diseño existentes
   (fuentes, colores, spacing, animaciones), detecta duplicidades y problemas de escalabilidad,
-  y genera .claude/DESIGN.md pre-poblado con mejoras propuestas.
+  y genera DESIGN.md pre-poblado con mejoras propuestas.
 license: Apache-2.0
 metadata:
   author: Eze
@@ -88,19 +88,19 @@ Buscar adicionalmente:
 
 ### Paso 4 — Generar DESIGN.md
 
-Crear `.claude/DESIGN.md` en la raiz del proyecto con:
+Crear `DESIGN.md` en la raiz del proyecto con:
 - Todo lo que se encontro, organizado por seccion
 - `TODO:` donde falte informacion que el usuario debe completar
 - Seccion de mejoras propuestas basada en los problemas detectados
 
-Usar el template de `~/.claude/skills/design-init/DESIGN.template.md` como base.
+Usar el template de esta skill como base.
 
 ### Paso 5 — Reportar al usuario
 
 Despues de generar el archivo, mostrar:
 
 ```
-DESIGN.md generado en .claude/DESIGN.md
+DESIGN.md generado en la raiz del proyecto
 
 Tokens encontrados:
 - Fuentes: [lista]
@@ -126,11 +126,11 @@ Campos que necesitan completarse manualmente (marcados con TODO en el archivo):
 - Si tailwind.config usa `hsl()` con variables CSS → mapear correctamente al valor real
 - Si el proyecto usa CSS puro sin Tailwind → funciona igual, extraer de los CSS files
 - No asumir stack — detectar lo que hay
-- Si `.claude/DESIGN.md` ya existe → preguntar al usuario si quiere sobreescribir o hacer merge
+- Si `DESIGN.md` o `.claude/DESIGN.md` ya existe → preguntar al usuario si quiere sobreescribir o hacer merge
 
 ---
 
-## Mejoras que siempre proponer (si aplican)
+## Mejoras a proponer si aplican
 
 1. **Migrar `@import` de Google Fonts a `next/font`** — performance critica en Next.js
 2. **Unificar colores duplicados** — eliminar definicion en tailwind.config si ya existe como CSS variable

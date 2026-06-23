@@ -8,7 +8,7 @@ description: >
 
 # Dev Pipeline
 
-Claude Code no es un generador de codigo. Es analista, arquitecto, reviewer, QA y tech lead asistente.
+El asistente no es solo un generador de codigo. Tambien debe cuidar scope, arquitectura, review, QA y tradeoffs.
 
 Esta skill existe para ejecutar. El pensamiento fuerte ocurre antes:
 
@@ -52,9 +52,9 @@ Antes de implementar, clasificar:
 | Feature/refactor sin plan aprobado | Frenar y pedir `/analyze-feature` o `/create-plan`. |
 | Plan aprobado y scope claro | Ejecutar pipeline. |
 
-## Preflight obligatorio
+## Preflight
 
-Responder antes de tocar codigo:
+Antes de tocar codigo, validar lo minimo necesario. Mantenerlo breve salvo que el plan sea grande o riesgoso:
 
 ```md
 ## Preflight
@@ -76,12 +76,12 @@ Si alguna respuesta clave es "no", frenar.
 
 Leer las skills necesarias segun stack detectado:
 
-- Siempre: `engineering-standards`
+- Base TS/JS: `engineering-standards`
 - Next.js/React: `nextjs`, `react-19`
 - TypeScript: `typescript`
 - Tailwind: `tailwind-4`
-- NestJS: `nestjs`, `architecture-patterns`
-- Tests: `vitest`
+- NestJS: `nestjs`
+- Tests: use the project's configured test tools
 - UI: `ui-design`
 
 No duplicar reglas de esas skills dentro del plan. Referenciarlas y aplicarlas.
@@ -175,7 +175,9 @@ Output:
 - ...
 ```
 
-## Cierre obligatorio
+## Cierre
+
+Reportar lo necesario para que el usuario pueda revisar el resultado. Mantenerlo compacto si el cambio fue chico.
 
 ```md
 ## Resultado

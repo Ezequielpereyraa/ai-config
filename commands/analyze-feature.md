@@ -5,11 +5,13 @@ argument-hint: [ticket, requerimiento o refactor]
 
 Ticket / requerimiento: `$ARGUMENTS`.
 
-## Regla critica
+## Reglas criticas
 
 **NO escribas codigo.** Este comando existe para pensar antes de ejecutar.
 
-Si el pedido parece chico, igual analizalo liviano y recomendá si alcanza resolverlo por chat.
+Primero clasificá la tarea segun `WORKFLOW.md`: `small`, `medium`, `large` o `risky`.
+
+Si el pedido es `small`, no generes el artefacto completo. Decí que alcanza resolverlo por chat, explicá el motivo en 1-3 bullets y frená.
 
 ## Objetivo
 
@@ -24,19 +26,32 @@ Entender el problema, explorar opciones, desafiar la solucion obvia, estimar inc
 5. Estimar por complejidad e incertidumbre, no por falsa precision.
 6. Terminar con una decision requerida. No implementar.
 
-## Output obligatorio
+## Output
+
+Usar el menor formato que preserve correctness.
+
+### Compacto (`medium` por defecto)
+
+Usar cuando hay una opcion clara o el riesgo es moderado:
 
 ### Resumen
-[Problema en 2-3 lineas + recomendacion corta]
+[Problema + recomendacion en 2-4 lineas]
 
 ### Contexto leido
 - `path` — por que importa
 
-### Problema
-- Usuario / actor:
-- Resultado esperado:
-- Restricciones:
+### Recomendacion
+- Opcion recomendada:
+- Por que:
+- Riesgos principales:
 - Fuera de scope:
+
+### Decision requerida
+[Que tiene que decidir el usuario antes de pasar a `/create-plan` o implementar directo]
+
+### Completo (`large` o `risky`)
+
+Usar solo si hay varias opciones reales, alta incertidumbre o riesgo alto.
 
 ### Opciones
 
@@ -45,9 +60,6 @@ Entender el problema, explorar opciones, desafiar la solucion obvia, estimar inc
 | A | ... | ... | ... | ... | ... |
 
 Si solo hay una opcion razonable, decirlo y explicar por que.
-
-### Recomendacion
-[Opcion recomendada + razon tecnica/producto]
 
 ### Challenge
 - Riesgos principales:

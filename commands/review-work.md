@@ -18,7 +18,27 @@ Revisar como Staff Engineer: bugs, seguridad, arquitectura, mantenibilidad, test
 4. Priorizar hallazgos por impacto.
 5. No reescribir todo. Sugerir cambios concretos.
 
-## Output obligatorio
+## Output
+
+Findings first. No intro larga.
+
+Usar el menor formato que preserve correctness.
+
+### Compacto (`brief`/`standard`)
+
+Usar para diffs chicos o medianos:
+
+### Findings
+- [Severidad] `path:line` — problema — fix sugerido
+
+Si no hay findings: "No findings." y mencionar gaps de testing si existen.
+
+### Decision
+Mergea / necesita ajustes / necesita rework.
+
+### Completo (`deep`)
+
+Usar solo para PRs grandes, arquitectura, seguridad o cambios riesgosos.
 
 ### Veredicto
 Mergea / necesita ajustes / necesita rework.

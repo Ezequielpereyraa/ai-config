@@ -65,7 +65,7 @@ import { cache } from 'react'
 export const getUser = cache(async (id: string) => db.users.findUnique({ where: { id } }))
 ```
 
-> **Nudge:** Sequential `await` inside a component = waterfall. Always check if fetches are independent and parallelize them.
+> **Nudge:** Sequential `await` inside a component can create a waterfall. Check if fetches are independent and parallelize them when it improves behavior.
 
 ## Server Actions
 

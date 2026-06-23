@@ -9,6 +9,8 @@ Bug reportado: `$ARGUMENTS`.
 
 Causa raiz antes que fix. Fix minimo antes que refactor.
 
+Si el bug es obvio y de bajo riesgo, podes aplicar el fix minimo despues de confirmar la causa. Si es riesgoso o ambiguo, frenar con recomendacion antes de editar.
+
 ## Proceso
 
 1. Leer el flujo real involucrado.
@@ -18,7 +20,26 @@ Causa raiz antes que fix. Fix minimo antes que refactor.
 5. Proponer fix minimo.
 6. Recomendar test de regresion.
 
-## Output obligatorio
+## Output
+
+Usar el menor formato que preserve correctness.
+
+### Compacto (`brief`/`standard`)
+
+Usar para bugs claros o de bajo/medio riesgo:
+
+### Causa raiz
+[Explicacion tecnica concreta con evidencia]
+
+### Fix minimo
+- Cambio:
+- Archivos:
+- Verificacion:
+- Riesgo restante:
+
+### Completo (`deep`)
+
+Usar solo si hay varias hipotesis, reproduccion incierta, riesgo alto o fallo complejo.
 
 ### Sintoma
 [Que falla y como se reproduce]

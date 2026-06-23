@@ -1,7 +1,7 @@
 ---
 name: ui-design
 description: >
-  UI/UX completo — principios base (siempre activos al tocar UI) + secciones especializadas por trigger.
+  UI/UX completo — principios base al tocar UI + secciones especializadas por trigger.
   Triggers específicos dentro del skill: responsive/mobile, animation/motion, copy/microcopy, color/palette, layout/spacing, editorial/minimalist, performance/slow.
 license: Apache-2.0
 metadata:
@@ -11,17 +11,17 @@ metadata:
 
 # UI Design — Principios y Patrones
 
-## Regla 0 — Verificar DESIGN.md primero
+## Regla 0 — Verificar DESIGN.md cuando aplique
 
-Antes de escribir cualquier clase:
+Antes de cambios visuales no triviales:
 
-1. Buscar `.claude/DESIGN.md` en el proyecto.
-2. Si existe → leerlo COMPLETO. Esos son los tokens. No inventar colores, fuentes, ni spacing.
-3. Si NO existe → sugerir `/design-init` antes de seguir.
+1. Buscar `.claude/DESIGN.md` o `DESIGN.md` en el proyecto.
+2. Si existe → leerlo. Esos son los tokens. No inventar colores, fuentes, ni spacing.
+3. Si no existe → seguir patrones existentes. Sugerir `/design-init` solo si la falta de tokens bloquea consistencia o el usuario pide sistema de diseño.
 
 ---
 
-# BASE — Estética siempre activa
+# BASE — Estética base
 
 Referencias: Vercel, Notion, Linear. Minimalismo funcional, jerarquía clara, precisión tipográfica.
 
@@ -66,7 +66,7 @@ Referencias: Vercel, Notion, Linear. Minimalismo funcional, jerarquía clara, pr
 - **Semántica explícita** — verde=éxito, rojo=error, ámbar=advertencia. Consistente siempre.
 - **WCAG AA mínimo** — 4.5:1 texto normal, 3:1 texto grande.
 
-### Tokens (siempre CSS variables o Tailwind semantic)
+### Tokens (preferir CSS variables o Tailwind semantic)
 ```css
 :root {
   --color-brand: /* primario */;
@@ -123,7 +123,7 @@ Referencias: Vercel, Notion, Linear. Minimalismo funcional, jerarquía clara, pr
 <div className="rounded-2xl shadow-xl" />                            {/* card marketing */}
 ```
 
-## Microinteracciones obligatorias (siempre)
+## Microinteracciones recomendadas
 ```tsx
 <button className="transition-all duration-150 hover:opacity-90 active:scale-[0.98]" />
 <a      className="transition-colors duration-150 hover:text-foreground" />
@@ -463,7 +463,7 @@ Phosphor Icons (Bold/Fill) o Radix Icons. Stroke consistente.
 Desaturadas, overlay warm grain `opacity: 0.04`. Never oversaturated stock. Placeholder: `https://picsum.photos/seed/{context}/1200/800`.
 
 ### Motion (override del base)
-- **Scroll entry:** `translateY(12px) → 0` + `opacity 0 → 1`, `600ms`, `cubic-bezier(0.16, 1, 0.3, 1)`. Siempre `IntersectionObserver`.
+- **Scroll entry:** `translateY(12px) → 0` + `opacity 0 → 1`, `600ms`, `cubic-bezier(0.16, 1, 0.3, 1)`. Preferir `IntersectionObserver`.
 - **Hover cards:** `box-shadow` de `0 0 0` a `0 2px 8px rgba(0,0,0,0.04)` en `200ms`.
 - **Staggered reveals:** `animation-delay: calc(var(--index) * 80ms)`.
 - **Ambient motion:** máx 1 radial gradient blob `opacity: 0.02-0.04`, `animation-duration: 20s+`, en layer `position: fixed; pointer-events: none`.
@@ -519,7 +519,7 @@ const HeavyChart = lazy(() => import('./HeavyChart'))
 - Tailwind JIT — remove unused.
 
 **Fonts:**
-- `font-display: swap` siempre.
+- Preferir `font-display: swap`.
 - Subset a chars que usás.
 - Preload solo críticas.
 - Limitar weights cargados (2-3 max).

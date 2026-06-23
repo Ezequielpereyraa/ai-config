@@ -148,9 +148,9 @@ config/  ← constantes y configuración del slice
 
 ---
 
-## Public API — index.ts obligatorio
+## Public API — index.ts
 
-Cada slice expone solo lo que otros necesitan. Nada se importa directamente desde adentro.
+Cada slice deberia exponer solo lo que otros necesitan. Evitar imports directos desde adentro salvo que el proyecto ya tenga otra convencion.
 
 ```ts
 // features/auth/login/index.ts

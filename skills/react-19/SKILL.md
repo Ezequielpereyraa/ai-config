@@ -9,7 +9,7 @@ description: >
 
 > Assumes React 19 + React Compiler. No basics. Focus on what changed and what to stop doing.
 
-## React Compiler — No More Manual Memoization
+## React Compiler — Avoid Unnecessary Manual Memoization
 
 ```typescript
 // ✅ Compiler handles this automatically
@@ -19,12 +19,12 @@ const Component = ({ items }: { items: IItem[] }) => {
   return <List items={filtered} onClick={handleClick} />
 }
 
-// ❌ NEVER — useMemo and useCallback are dead weight with the Compiler
+// ❌ Usually unnecessary with the Compiler
 const filtered = useMemo(() => items.filter(x => x.active), [items])
 const handleClick = useCallback((id: string) => console.log(id), [])
 ```
 
-> **Nudge:** Any `useMemo` / `useCallback` in new code is wrong. In existing code, flag it for removal.
+> **Nudge:** Do not add `useMemo` / `useCallback` by default. Keep or add them only when there is measured need, an unstable dependency contract, or the existing codebase still relies on manual memoization.
 
 ## Imports
 
@@ -32,7 +32,7 @@ const handleClick = useCallback((id: string) => console.log(id), [])
 // ✅ Named imports only
 import { useState, useEffect, useRef, use } from 'react'
 
-// ❌ NEVER
+// ❌ Avoid in new code unless the project convention requires it
 import React from 'react'
 import * as React from 'react'
 ```

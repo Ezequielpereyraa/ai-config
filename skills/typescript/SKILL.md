@@ -7,7 +7,7 @@ description: >
 
 # TypeScript — Senior Patterns & Best Practices
 
-> Strict mode always. No `any`. No unsafe casts. Every pattern here has a reason.
+> Assume strict mode. Avoid `any` and unsafe casts. Every pattern here has a reason.
 
 ## Interfaces vs Types
 
@@ -243,7 +243,7 @@ interface IOrder {
 ## Import Types
 
 ```typescript
-// Always use import type for type-only imports — no runtime cost
+// Prefer import type for type-only imports — no runtime cost
 import type { IUser, IAdmin } from './types'
 import { createUser, type ICreateUserDto } from './services/user.service'
 ```

@@ -21,26 +21,26 @@ Library can't use class?→ style prop with var() constants
 
 ## Critical Rules
 
-### Never Use var() in className
+### Avoid var() in className
 
 ```typescript
-// ❌ NEVER: var() in className
+// ❌ Avoid: var() in className
 <div className="bg-[var(--color-primary)]" />
 <div className="text-[var(--text-color)]" />
 
-// ✅ ALWAYS: Use Tailwind semantic classes
+// ✅ Prefer: Tailwind semantic classes
 <div className="bg-primary" />
 <div className="text-slate-400" />
 ```
 
-### Never Use Hex Colors
+### Avoid Hex Colors In Components
 
 ```typescript
-// ❌ NEVER: Hex colors in className
+// ❌ Avoid: Hex colors in className
 <p className="text-[#ffffff]" />
 <div className="bg-[#1e293b]" />
 
-// ✅ ALWAYS: Use Tailwind color classes
+// ✅ Prefer: Tailwind color classes or project tokens
 <p className="text-white" />
 <div className="bg-slate-800" />
 ```

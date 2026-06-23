@@ -1,63 +1,111 @@
 #!/usr/bin/env bash
-# install.sh — Sincroniza ai-config con ~/.claude
-# Uso: ./install.sh
-# Crea symlinks para CLAUDE.md, settings.json, statusline.sh y skills/
+# install.sh — Sincroniza ai-config con herramientas IA en Unix/macOS
+# Uso: ./install.sh [all|claude|opencode|codex]
 
 set -e
 
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CLAUDE_DIR="$HOME/.claude"
+OPENCODE_DIR="$HOME/.config/opencode"
+CODEX_DIR="$HOME/.codex"
+CODEX_RULES_DIR="$HOME/.codex/rules"
+TARGET="${1:-all}"
 
 echo "→ ai-config install desde: $REPO_DIR"
-echo "→ Target: $CLAUDE_DIR"
+echo "→ Claude target: $CLAUDE_DIR"
+echo "→ OpenCode target: $OPENCODE_DIR"
+echo "→ Codex target: $CODEX_DIR"
+echo "→ Codex rules target: $CODEX_RULES_DIR"
 echo ""
 
-# Crear directorio si no existe
-mkdir -p "$CLAUDE_DIR"
+mkdir -p "$CLAUDE_DIR" "$OPENCODE_DIR" "$CODEX_DIR" "$CODEX_RULES_DIR"
 
-# Función para crear symlink con backup
 link() {
   local src="$REPO_DIR/$1"
-  local dst="$CLAUDE_DIR/$2"
-
-  if [ -e "$dst" ] && [ ! -L "$dst" ]; then
-    echo "  backup: $dst → $dst.backup"
-    mv "$dst" "$dst.backup"
-  fi
-
-  ln -sf "$src" "$dst"
-  echo "  ✓ $dst → $src"
-}
-
-# Archivos principales
-link "CLAUDE.md"      "CLAUDE.md"
-link "settings.json"  "settings.json"
-
-# statusline solo si existe
-if [ -f "$REPO_DIR/statusline.sh" ]; then
-  link "statusline.sh" "statusline.sh"
-fi
-
-# Función para linkear directorios completos (con backup si existe y no es symlink)
-link_dir() {
-  local src="$REPO_DIR/$1"
-  local dst="$CLAUDE_DIR/$1"
+  local dst="$2/$3"
 
   if [ -L "$dst" ]; then
     rm "$dst"
-  elif [ -d "$dst" ]; then
-    echo "  backup: $dst → $dst.backup"
-    mv "$dst" "$dst.backup"
+  elif [ -e "$dst" ]; then
+    local backup="$dst.backup"
+    echo "  backup: $dst → $backup"
+    rm -rf "$backup"
+    mv "$dst" "$backup"
   fi
 
   ln -sf "$src" "$dst"
   echo "  ✓ $dst → $src"
 }
 
-# Directorios completos
-link_dir "skills"
-link_dir "commands"
-link_dir "output-styles"
+link_dir() {
+  local src="$REPO_DIR/$1"
+  local dst="$2/$3"
+
+  if [ -L "$dst" ]; then
+    rm "$dst"
+  elif [ -e "$dst" ]; then
+    local backup="$dst.backup"
+    echo "  backup: $dst → $backup"
+    rm -rf "$backup"
+    mv "$dst" "$backup"
+  fi
+
+  ln -sf "$src" "$dst"
+  echo "  ✓ $dst → $src"
+}
+
+install_claude() {
+  link "CLAUDE.md" "$CLAUDE_DIR" "CLAUDE.md"
+  link "settings.json" "$CLAUDE_DIR" "settings.json"
+
+  if [ -f "$REPO_DIR/statusline.sh" ]; then
+    link "statusline.sh" "$CLAUDE_DIR" "statusline.sh"
+  fi
+
+  link_dir "skills" "$CLAUDE_DIR" "skills"
+  link_dir "commands" "$CLAUDE_DIR" "commands"
+  link_dir "output-styles" "$CLAUDE_DIR" "output-styles"
+}
+
+install_opencode() {
+  if [ -f "$REPO_DIR/opencode/opencode.jsonc" ]; then
+    link "opencode/opencode.jsonc" "$OPENCODE_DIR" "opencode.jsonc"
+  fi
+
+  link_dir "skills" "$OPENCODE_DIR" "skills"
+  link_dir "commands" "$OPENCODE_DIR" "commands"
+}
+
+install_codex() {
+  if [ -f "$REPO_DIR/codex/AGENTS.md" ]; then
+    link "codex/AGENTS.md" "$CODEX_DIR" "AGENTS.md"
+  fi
+
+  if [ -f "$REPO_DIR/codex/rules/default.rules" ]; then
+    link "codex/rules/default.rules" "$CODEX_RULES_DIR" "default.rules"
+  fi
+}
+
+case "$TARGET" in
+  all)
+    install_claude
+    install_opencode
+    install_codex
+    ;;
+  claude)
+    install_claude
+    ;;
+  opencode)
+    install_opencode
+    ;;
+  codex)
+    install_codex
+    ;;
+  *)
+    echo "Target inválido: '$TARGET'. Usá: all | claude | opencode | codex"
+    exit 1
+    ;;
+esac
 
 echo ""
-echo "✅ Listo. Reiniciá Claude Code para aplicar los cambios."
+echo "✅ Listo. Reiniciá las herramientas abiertas para aplicar los cambios."

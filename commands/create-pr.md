@@ -43,6 +43,8 @@ No requiere changeset para cambios internos, tests, docs, tooling, refactors sin
 
 ## Output
 
+No agregues secciones vacias. Si algo no aplica, omitilo salvo `Testing`, donde hay que decir si no se ejecuto nada.
+
 ### Title
 [Conventional commit corto]
 

@@ -8,12 +8,14 @@ $ErrorActionPreference = "Stop"
 $RepoDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $ClaudeDir = Join-Path $env:USERPROFILE ".claude"
 $OpenCodeDir = Join-Path $env:USERPROFILE ".config\opencode"
+$CodexDir = Join-Path $env:USERPROFILE ".codex"
 $CodexRulesDir = Join-Path $env:USERPROFILE ".codex\rules"
 
 Write-Host "→ ai-config install desde: $RepoDir"
 Write-Host "→ Claude target: $ClaudeDir"
 Write-Host "→ OpenCode target: $OpenCodeDir"
-Write-Host "→ Codex target: $CodexRulesDir"
+Write-Host "→ Codex target: $CodexDir"
+Write-Host "→ Codex rules target: $CodexRulesDir"
 Write-Host ""
 
 if (-not (Test-Path $ClaudeDir)) {
@@ -22,6 +24,10 @@ if (-not (Test-Path $ClaudeDir)) {
 
 if (-not (Test-Path $OpenCodeDir)) {
     New-Item -ItemType Directory -Path $OpenCodeDir | Out-Null
+}
+
+if (-not (Test-Path $CodexDir)) {
+    New-Item -ItemType Directory -Path $CodexDir | Out-Null
 }
 
 if (-not (Test-Path $CodexRulesDir)) {
@@ -40,6 +46,7 @@ function Remove-Stale-Symlink-Backups {
 
 Remove-Stale-Symlink-Backups $ClaudeDir
 Remove-Stale-Symlink-Backups $OpenCodeDir
+Remove-Stale-Symlink-Backups $CodexDir
 Remove-Stale-Symlink-Backups $CodexRulesDir
 
 $UseSymlinks = $false
@@ -143,6 +150,11 @@ Link-Or-Copy-Dir "skills" "skills" $OpenCodeDir
 Link-Or-Copy-Dir "commands" "commands" $OpenCodeDir
 
 # Codex
+$codexAgentsSrc = Join-Path $RepoDir "codex\AGENTS.md"
+if (Test-Path $codexAgentsSrc) {
+    Link-Or-Copy "codex\AGENTS.md" "AGENTS.md" $CodexDir
+}
+
 $codexRulesSrc = Join-Path $RepoDir "codex\rules\default.rules"
 if (Test-Path $codexRulesSrc) {
     Link-Or-Copy "codex\rules\default.rules" "default.rules" $CodexRulesDir
@@ -156,4 +168,4 @@ if (-not $UseSymlinks) {
     Write-Host ""
 }
 
-Write-Host "✅ Listo. Reiniciá Claude Code para aplicar los cambios."
+Write-Host "✅ Listo. Reiniciá las herramientas abiertas para aplicar los cambios."

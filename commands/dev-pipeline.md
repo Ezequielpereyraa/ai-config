@@ -18,7 +18,9 @@ Solo ejecutar cuando ya existe:
 - Fuera de scope.
 - Riesgos conocidos.
 
-Si falta algo, frenar y pedir `/analyze-feature` o `/create-plan`.
+Si falta algo para un cambio `medium`, `large` o `risky`, frenar y pedir `/analyze-feature` o `/create-plan`.
+
+Si el cambio es `trivial` o `small`, no uses pipeline pesado. Resolver por chat directo si el scope es claro.
 
 ## Objetivo
 
@@ -32,6 +34,8 @@ Implementar exactamente el plan aprobado usando la skill `dev-pipeline`.
 4. No cambiar arquitectura ni scope sin volver a pedir aprobacion.
 
 ## Output esperado
+
+Mantenerlo breve salvo que el plan sea grande o riesgoso.
 
 ### Validacion de entrada
 - Plan aprobado: si/no

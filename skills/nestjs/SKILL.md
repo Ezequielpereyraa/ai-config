@@ -5,7 +5,7 @@ description: NestJS patterns and best practices. Use when building REST APIs, mo
 
 # NestJS — Senior Patterns & Best Practices
 
-> Controller → Service → Repository. Sin excepciones.
+> Default structure: Controller → Service → Repository. Follow existing project architecture when it is more specific.
 
 ## Module Structure
 
@@ -24,7 +24,7 @@ src/
         users.service.spec.ts
 ```
 
-**Rule:** Feature modules only. AppModule solo importa feature modules.
+**Rule:** Prefer feature modules. Keep AppModule thin and avoid putting business logic there.
 
 ## Controller — thin layer
 
