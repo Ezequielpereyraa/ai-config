@@ -20,5 +20,6 @@
       "coverage/**",
       ".git/**"
     ]
-  }
+  },
+  "plugin": ["@warp-dot-dev/opencode-warp"]
 }

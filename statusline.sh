@@ -1,16 +1,30 @@
 #!/bin/bash
 
-# Gentleman theme colors (ANSI 256)
-PRIMARY='\033[38;5;110m'      # #7FB4CA azul claro
-ACCENT='\033[38;5;179m'       # #E0C15A dorado
-SECONDARY='\033[38;5;146m'    # #A3B5D6 azul gris
-MUTED='\033[38;5;242m'        # #5C6170 gris
-SUCCESS='\033[38;5;150m'      # #B7CC85 verde
-ERROR='\033[38;5;174m'        # #CB7C94 rosa/rojo
-PURPLE='\033[38;5;183m'       # #C99AD6 púrpura
+# Gentleman theme — true-color powerline blocks
+# Requires a Nerd Font for the chevron/cap glyphs (already working per prior icons)
+
+rgb_bg() { printf '\033[48;2;%sm' "$1"; }
+rgb_fg() { printf '\033[38;2;%sm' "$1"; }
+
+BASE_RGB='30;30;46'        # dark text drawn on top of colored blocks
+PRIMARY_RGB='127;180;202'  # #7FB4CA azul claro
+ACCENT_RGB='224;193;90'    # #E0C15A dorado
+SECONDARY_RGB='163;181;214' # #A3B5D6 azul gris
+MUTED_RGB='92;97;112'      # #5C6170 gris
+SUCCESS_RGB='183;204;133'  # #B7CC85 verde
+ERROR_RGB='203;124;148'    # #CB7C94 rosa/rojo
+PURPLE_RGB='201;154;214'   # #C99AD6 púrpura
+
+BASE=$(rgb_fg "$BASE_RGB")
 BOLD='\033[1m'
-STRIKE='\033[9m'
 NC='\033[0m'
+
+# Powerline glyphs (Nerd Font)
+SEP=''      # U+E0B0 chevron
+CAP_L=''    # U+E0B6 rounded left cap
+CAP_R=''    # U+E0B4 rounded right cap
+FOLDER='󰉋'
+BRANCH_ICON=''
 
 # Cache for MCP (don't call every 300ms)
 MCP_CACHE_FILE="/tmp/claude_mcp_cache"
@@ -19,26 +33,27 @@ MCP_CACHE_TTL=120  # 2 minutes
 # Read JSON from stdin
 input=$(cat)
 
-# Parse basic fields
-MODEL=$(echo "$input" | jq -r '.model.display_name // "Claude"')
-DIR=$(echo "$input" | jq -r '.workspace.current_dir // "~"')
-ADDED=$(echo "$input" | jq -r '.cost.total_lines_added // 0')
-REMOVED=$(echo "$input" | jq -r '.cost.total_lines_removed // 0')
+# Parse fields via node (jq isn't installed on this machine; node always is)
+# ponytail: node instead of jq — reuses an already-installed dependency
+FIELDS=$(printf '%s' "$input" | node -e '
+let data = "";
+process.stdin.on("data", c => data += c);
+process.stdin.on("end", () => {
+  let j = {};
+  try { j = JSON.parse(data); } catch (e) {}
+  const out = [
+    j.model?.display_name ?? "Claude",
+    j.workspace?.current_dir ?? "~",
+    j.context_window?.used_percentage ?? "",
+    j.cost?.total_cost_usd ?? 0,
+    j.cost?.total_duration_ms ?? 0,
+  ];
+  process.stdout.write(out.join("\t"));
+});
+')
+IFS=$'\t' read -r MODEL DIR CTX_PERCENT_RAW COST_USD DURATION_MS <<< "$FIELDS"
 
-# Session cumulative tokens
-TOTAL_IN=$(echo "$input" | jq -r '.context_window.total_input_tokens // 0')
-TOTAL_OUT=$(echo "$input" | jq -r '.context_window.total_output_tokens // 0')
-SESSION_TOKENS=$((TOTAL_IN + TOTAL_OUT))
-
-# Format session tokens (K suffix)
-if [ "$SESSION_TOKENS" -ge 1000 ]; then
-  SESSION_TOKENS_DISPLAY="$(echo "$SESSION_TOKENS" | awk '{printf "%.1fk", $1/1000}')"
-else
-  SESSION_TOKENS_DISPLAY="${SESSION_TOKENS}"
-fi
-
-# Context window — use pre-calculated fields from Claude Code (avoids double-counting cache)
-CTX_PERCENT_RAW=$(echo "$input" | jq -r '.context_window.used_percentage // empty')
+# Context window — pre-calculated field from Claude Code
 if [ -n "$CTX_PERCENT_RAW" ]; then
   CTX_PERCENT=$(printf "%.0f" "$CTX_PERCENT_RAW")
 else
@@ -47,79 +62,41 @@ fi
 [ "$CTX_PERCENT" -gt 100 ] && CTX_PERCENT=100
 [ "$CTX_PERCENT" -lt 0 ] && CTX_PERCENT=0
 
+# Cost / duration formatting
+COST_FMT=$(awk -v c="$COST_USD" 'BEGIN { printf "$%.2f", c+0 }')
+DURATION_FMT=$(awk -v ms="$DURATION_MS" 'BEGIN {
+  s = int(ms / 1000); m = int(s / 60); h = int(m / 60)
+  if (h > 0) printf "%dh%dm", h, m % 60
+  else printf "%dm", m
+}')
+
 # Function to get MCP servers from config
 get_mcp_servers() {
-  # Check cache first
   if [ -f "$MCP_CACHE_FILE" ]; then
-    CACHE_AGE=$(($(date +%s) - $(stat -f %m "$MCP_CACHE_FILE" 2>/dev/null || echo 0)))
+    CACHE_AGE=$(($(date +%s) - $(stat -c %Y "$MCP_CACHE_FILE" 2>/dev/null || stat -f %m "$MCP_CACHE_FILE" 2>/dev/null || echo 0)))
     if [ "$CACHE_AGE" -lt "$MCP_CACHE_TTL" ]; then
       cat "$MCP_CACHE_FILE"
       return
     fi
   fi
 
-  # Read MCP servers from ~/.claude.json config
-  local CURRENT_DIR
-  CURRENT_DIR=$(echo "$input" | jq -r '.workspace.current_dir // ""')
+  local SERVERS
+  SERVERS=$(node -e '
+    const fs = require("fs");
+    const os = require("os");
+    try {
+      const cfg = JSON.parse(fs.readFileSync(os.homedir() + "/.claude.json", "utf8"));
+      const servers = cfg.projects?.[process.argv[1]]?.mcpServers ?? {};
+      process.stdout.write(Object.keys(servers).join(","));
+    } catch (e) {}
+  ' "$DIR" 2>/dev/null)
 
-  # Get servers from current project first, fallback to home
-  local SERVERS=""
-
-  if [ -n "$CURRENT_DIR" ]; then
-    SERVERS=$(jq -r ".projects[\"$CURRENT_DIR\"].mcpServers // {} | keys[]" ~/.claude.json 2>/dev/null | tr '\n' ',' | sed 's/,$//')
-  fi
-
-  # Fallback to home config if current project has no MCP
-  if [ -z "$SERVERS" ]; then
-    SERVERS=$(jq -r '.projects["/Users/alanbuscaglia"].mcpServers // {} | keys[]' ~/.claude.json 2>/dev/null | tr '\n' ',' | sed 's/,$//')
-  fi
-
-  local ALL_SERVERS="$SERVERS"
-
-  # Save to cache (all as "configured" - we can't check connection status easily)
-  echo "$ALL_SERVERS|" > "$MCP_CACHE_FILE"
-  echo "$ALL_SERVERS|"
+  echo "$SERVERS" > "$MCP_CACHE_FILE"
+  echo "$SERVERS"
 }
-
-# Get MCP status
-MCP_DATA=$(get_mcp_servers)
-MCP_CONNECTED=$(echo "$MCP_DATA" | cut -d'|' -f1)
-MCP_DISCONNECTED=$(echo "$MCP_DATA" | cut -d'|' -f2)
-
-# Format MCP display
-format_mcp() {
-  local result=""
-
-  # Connected servers (green)
-  if [ -n "$MCP_CONNECTED" ]; then
-    IFS=',' read -ra SERVERS <<< "$MCP_CONNECTED"
-    for srv in "${SERVERS[@]}"; do
-      if [ -n "$result" ]; then
-        result+=" "
-      fi
-      result+="${SUCCESS}${srv}${NC}"
-    done
-  fi
-
-  # Disconnected servers (red + strikethrough)
-  if [ -n "$MCP_DISCONNECTED" ]; then
-    IFS=',' read -ra SERVERS <<< "$MCP_DISCONNECTED"
-    for srv in "${SERVERS[@]}"; do
-      if [ -n "$result" ]; then
-        result+=" "
-      fi
-      result+="${ERROR}${STRIKE}${srv}${NC}"
-    done
-  fi
-
-  if [ -z "$result" ]; then
-    echo "${MUTED}no mcp${NC}"
-  else
-    echo "$result"
-  fi
-}
-
-MCP_DISPLAY=$(format_mcp)
+MCP_SERVERS=$(get_mcp_servers)
+MCP_COUNT=0
+[ -n "$MCP_SERVERS" ] && MCP_COUNT=$(echo "$MCP_SERVERS" | tr ',' '\n' | wc -l | tr -d ' ')
 
 # Directory name
 DIR_NAME=$(basename "$DIR")
@@ -127,9 +104,9 @@ DIR_NAME=$(basename "$DIR")
 # Git info
 BRANCH=""
 GIT_DIRTY=""
-if git rev-parse --git-dir > /dev/null 2>&1; then
-  BRANCH=$(git branch --show-current 2>/dev/null)
-  if [[ -n $(git status --porcelain 2>/dev/null) ]]; then
+if git -C "$DIR" rev-parse --git-dir > /dev/null 2>&1; then
+  BRANCH=$(git -C "$DIR" branch --show-current 2>/dev/null)
+  if [[ -n $(git -C "$DIR" status --porcelain 2>/dev/null) ]]; then
     GIT_DIRTY="*"
   fi
 fi
@@ -142,44 +119,45 @@ case "$MODEL" in
   *Haiku*) MODEL_ICON="🍃" ;;
 esac
 
-# Progress bar
+# Context bar
 BAR_WIDTH=8
 FILLED=$((CTX_PERCENT * BAR_WIDTH / 100))
 EMPTY=$((BAR_WIDTH - FILLED))
-
-if [ "$CTX_PERCENT" -ge 80 ]; then
-  BAR_COLOR="$ERROR"
-elif [ "$CTX_PERCENT" -ge 50 ]; then
-  BAR_COLOR="$ACCENT"
-else
-  BAR_COLOR="$SUCCESS"
-fi
-
-BAR="${BAR_COLOR}"
-for ((i=0; i<FILLED; i++)); do BAR+="█"; done
-BAR+="${MUTED}"
+BAR=""
+for ((i=0; i<FILLED; i++)); do BAR+="▓"; done
 for ((i=0; i<EMPTY; i++)); do BAR+="░"; done
-BAR+="${NC}"
 
-# Build status line
-SEP="${MUTED}  ${NC}"
+# Segment background colors (context segment shifts with usage)
+if [ "$CTX_PERCENT" -ge 80 ]; then
+  CTX_RGB="$ERROR_RGB"
+elif [ "$CTX_PERCENT" -ge 50 ]; then
+  CTX_RGB="$ACCENT_RGB"
+else
+  CTX_RGB="$SUCCESS_RGB"
+fi
+GIT_RGB="$SUCCESS_RGB"
+[ -n "$GIT_DIRTY" ] && GIT_RGB="$ACCENT_RGB"
 
-LINE="${BOLD}${PURPLE}${MODEL_ICON} ${MODEL}${NC}"
-LINE+="${SEP}"
-LINE+="${ACCENT}󰉋 ${DIR_NAME}${NC}"
+# Build powerline: cap -> model -> dir -> [git] -> context+cost -> [mcp] -> cap
+LINE="${NC}$(rgb_fg "$PURPLE_RGB")${CAP_L}$(rgb_bg "$PURPLE_RGB")${BASE}${BOLD} ${MODEL_ICON} ${MODEL} "
+PREV_RGB="$PURPLE_RGB"
+
+LINE+="$(rgb_fg "$PREV_RGB")$(rgb_bg "$PRIMARY_RGB")${SEP}${BASE}${BOLD} ${FOLDER} ${DIR_NAME} "
+PREV_RGB="$PRIMARY_RGB"
 
 if [ -n "$BRANCH" ]; then
-  LINE+="${SEP}"
-  LINE+="${SECONDARY} ${BRANCH}${GIT_DIRTY}${NC}"
+  LINE+="$(rgb_fg "$PREV_RGB")$(rgb_bg "$GIT_RGB")${SEP}${BASE}${BOLD} ${BRANCH_ICON} ${BRANCH}${GIT_DIRTY} "
+  PREV_RGB="$GIT_RGB"
 fi
 
-LINE+="${SEP}"
-LINE+="${SUCCESS}+${ADDED}${NC} ${ERROR}-${REMOVED}${NC}"
+LINE+="$(rgb_fg "$PREV_RGB")$(rgb_bg "$CTX_RGB")${SEP}${BASE}${BOLD} ${BAR} ${CTX_PERCENT}% ${COST_FMT} ${DURATION_FMT} "
+PREV_RGB="$CTX_RGB"
 
-LINE+="${SEP}"
-LINE+="${MUTED}ctx${NC} ${BAR} ${MUTED}${CTX_PERCENT}%${NC}"
+if [ "$MCP_COUNT" -gt 0 ]; then
+  LINE+="$(rgb_fg "$PREV_RGB")$(rgb_bg "$SECONDARY_RGB")${SEP}${BASE}${BOLD} 󰐻 ${MCP_COUNT} "
+  PREV_RGB="$SECONDARY_RGB"
+fi
 
-LINE+="${SEP}"
-LINE+="${MUTED}session${NC} ${SECONDARY}${SESSION_TOKENS_DISPLAY}${NC}"
+LINE+="${NC}$(rgb_fg "$PREV_RGB")${CAP_R}${NC}"
 
 echo -e "$LINE"

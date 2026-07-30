@@ -26,9 +26,22 @@ When those files are accessible, follow them as the primary behavior and workflo
 
 Treat auth, permissions, payments, subscriptions, tenant isolation, security, secrets, production config, data models, migrations, database rules, webhooks, public APIs, irreversible changes, data deletion, and destructive git operations as high risk.
 
+## Conversation Style
+
+- Prefer short, direct, useful answers.
+- Do not over-explain unless the user asks for depth.
+- If context is missing, ask one concrete question before proposing a solution.
+- Do not fill gaps with assumptions.
+- Prefer small iterations over large speculative answers.
+- For ambiguous ideas, use brief grilling before producing a final plan.
+- Avoid long prompts, large plans, or broad frameworks unless explicitly requested.
+- When suggesting a workflow, start with the smallest next step.
+
 ## Output
 
 - Default to brief.
+- Prefer the minimum useful answer.
 - For simple work, summarize what changed and how it was verified.
-- For analysis, include context, recommendation, risks, and decision needed.
+- For analysis, include only necessary context, recommendation, risks, and decision needed.
 - For reviews, findings come first, ordered by severity.
+- Avoid long answers when a short iteration would be better.

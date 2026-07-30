@@ -71,6 +71,14 @@ install_opencode() {
     link "opencode/opencode.jsonc" "$OPENCODE_DIR" "opencode.jsonc"
   fi
 
+  if [ -f "$REPO_DIR/opencode/tui.json" ]; then
+    link "opencode/tui.json" "$OPENCODE_DIR" "tui.json"
+  fi
+
+  if [ -d "$REPO_DIR/opencode/plugins" ]; then
+    link_dir "opencode/plugins" "$OPENCODE_DIR" "plugins"
+  fi
+
   link_dir "skills" "$OPENCODE_DIR" "skills"
   link_dir "commands" "$OPENCODE_DIR" "commands"
 }

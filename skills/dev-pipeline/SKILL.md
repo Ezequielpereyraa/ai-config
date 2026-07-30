@@ -124,15 +124,32 @@ Orden sugerido:
 
 ### Fase 3 — Deslop + QA mecanico
 
-Primero, ejecutar `deslop` sobre el diff para limpiar ruido generado por IA (comentarios inservibles, `any` casts, defensiveness anormal).  
-Luego, ejecutar checks razonables para el repo:
+Primero, revisar el diff y usar `deslop` cuando el cambio de codigo sea no trivial o muestre ruido generado por IA. Para cambios chicos o documentales, hacer una revision directa sin cargar pipeline adicional.
 
-- Typecheck si existe.
-- Tests relevantes si existen.
-- Lint focalizado si esta disponible.
+Luego, ejecutar el conjunto minimo de checks que cubra el riesgo real:
+
+- Typecheck solo si cambiaron contratos o codigo tipado.
+- Tests dirigidos a los modulos tocados. Correr la suite completa solo para cambios transversales, de alto riesgo o cuando no haya una seleccion confiable.
+- Lint focalizado sobre archivos cambiados si el proyecto lo soporta. Usar lint completo solo cuando sea la unica opcion razonable.
 - Revision de convenciones contra `engineering-standards`.
+- `git diff --check` antes de cerrar cambios de codigo.
 
-No correr builds pesados salvo pedido explicito.
+#### Build local
+
+- **No ejecutar `build` local por defecto.** El build de CI/Vercel es la validacion normal de produccion.
+- No inferir que `pnpm build`, `npm run build` o equivalente es obligatorio porque aparece en docs del repositorio, un checklist generico o un plan anterior.
+- Ejecutarlo unicamente si el usuario lo pide explicitamente en el pedido actual o si CI/Vercel no esta disponible y el usuario aprueba el costo antes de correrlo.
+- Si no se corre, reportar `Build local: omitido; se valida en CI/Vercel`, sin tratarlo como gap bloqueante.
+
+#### React Doctor
+
+- Correr React Doctor solo si cambiaron componentes, hooks o comportamiento React de forma sustancial.
+- Omitirlo para backend, docs, copy-only, estilos triviales o cambios ya cubiertos por typecheck/lint/tests dirigidos.
+- Usar siempre el scope mas chico disponible (`changed` o `lines`), nunca un scan completo como cierre rutinario.
+- No instalar ni descargar React Doctor durante el pipeline. Si no esta disponible localmente o como script del proyecto, omitirlo y reportarlo.
+- Ejecutarlo una sola vez al final; no repetirlo despues de cambios de copy menores si lint y typecheck siguen pasando.
+
+Siempre que sean independientes, correr los checks seleccionados en paralelo.
 
 Output:
 
@@ -143,6 +160,8 @@ Output:
 - Typecheck:
 - Tests:
 - Lint:
+- React Doctor: ejecutado/omitido (motivo)
+- Build local: omitido; se valida en CI/Vercel
 - Convenciones:
 - Resultado:
 ```
