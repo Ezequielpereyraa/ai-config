@@ -10,12 +10,14 @@ $ClaudeDir = Join-Path $env:USERPROFILE ".claude"
 $OpenCodeDir = Join-Path $env:USERPROFILE ".config\opencode"
 $CodexDir = Join-Path $env:USERPROFILE ".codex"
 $CodexRulesDir = Join-Path $env:USERPROFILE ".codex\rules"
+$NvimParentDir = $env:LOCALAPPDATA
 
 Write-Host "→ ai-config install desde: $RepoDir"
 Write-Host "→ Claude target: $ClaudeDir"
 Write-Host "→ OpenCode target: $OpenCodeDir"
 Write-Host "→ Codex target: $CodexDir"
 Write-Host "→ Codex rules target: $CodexRulesDir"
+Write-Host "→ Neovim target: $NvimParentDir\nvim"
 Write-Host ""
 
 if (-not (Test-Path $ClaudeDir)) {
@@ -157,6 +159,11 @@ if (Test-Path $codexAgentsSrc) {
 $codexRulesSrc = Join-Path $RepoDir "codex\rules\default.rules"
 if (Test-Path $codexRulesSrc) {
     Link-Or-Copy "codex\rules\default.rules" "default.rules" $CodexRulesDir
+}
+
+# Neovim
+if (Test-Path (Join-Path $RepoDir "nvim")) {
+    Link-Or-Copy-Dir "nvim" "nvim" $NvimParentDir
 }
 
 Write-Host ""

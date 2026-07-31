@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # install.sh — Sincroniza ai-config con herramientas IA en Unix/macOS
-# Uso: ./install.sh [all|claude|opencode|codex]
+# Uso: ./install.sh [all|claude|opencode|codex|nvim]
 
 set -e
 
@@ -9,6 +9,7 @@ CLAUDE_DIR="$HOME/.claude"
 OPENCODE_DIR="$HOME/.config/opencode"
 CODEX_DIR="$HOME/.codex"
 CODEX_RULES_DIR="$HOME/.codex/rules"
+NVIM_PARENT_DIR="$HOME/.config"
 TARGET="${1:-all}"
 
 echo "→ ai-config install desde: $REPO_DIR"
@@ -16,9 +17,10 @@ echo "→ Claude target: $CLAUDE_DIR"
 echo "→ OpenCode target: $OPENCODE_DIR"
 echo "→ Codex target: $CODEX_DIR"
 echo "→ Codex rules target: $CODEX_RULES_DIR"
+echo "→ Neovim target: $NVIM_PARENT_DIR/nvim"
 echo ""
 
-mkdir -p "$CLAUDE_DIR" "$OPENCODE_DIR" "$CODEX_DIR" "$CODEX_RULES_DIR"
+mkdir -p "$CLAUDE_DIR" "$OPENCODE_DIR" "$CODEX_DIR" "$CODEX_RULES_DIR" "$NVIM_PARENT_DIR"
 
 link() {
   local src="$REPO_DIR/$1"
@@ -93,11 +95,18 @@ install_codex() {
   fi
 }
 
+install_nvim() {
+  if [ -d "$REPO_DIR/nvim" ]; then
+    link_dir "nvim" "$NVIM_PARENT_DIR" "nvim"
+  fi
+}
+
 case "$TARGET" in
   all)
     install_claude
     install_opencode
     install_codex
+    install_nvim
     ;;
   claude)
     install_claude
@@ -108,8 +117,11 @@ case "$TARGET" in
   codex)
     install_codex
     ;;
+  nvim)
+    install_nvim
+    ;;
   *)
-    echo "Target inválido: '$TARGET'. Usá: all | claude | opencode | codex"
+    echo "Target inválido: '$TARGET'. Usá: all | claude | opencode | codex | nvim"
     exit 1
     ;;
 esac
