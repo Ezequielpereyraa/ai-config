@@ -66,6 +66,16 @@ install_claude() {
 
   link_dir "skills" "$CLAUDE_DIR" "skills"
     link_dir "commands" "$CLAUDE_DIR" "commands"
+
+  # agents/ se comparte con opencode. En Claude no se puede linkear el dir
+  # entero: $CLAUDE_DIR/agents tambien aloja agents de plugins.
+  if [ -d "$REPO_DIR/agents" ]; then
+    mkdir -p "$CLAUDE_DIR/agents"
+    for f in "$REPO_DIR"/agents/*.md; do
+      [ -e "$f" ] || continue
+      link "agents/$(basename "$f")" "$CLAUDE_DIR/agents" "$(basename "$f")"
+    done
+  fi
 }
 
 install_opencode() {
@@ -79,6 +89,10 @@ install_opencode() {
 
   if [ -d "$REPO_DIR/opencode/plugins" ]; then
     link_dir "opencode/plugins" "$OPENCODE_DIR" "plugins"
+  fi
+
+  if [ -d "$REPO_DIR/agents" ]; then
+    link_dir "agents" "$OPENCODE_DIR" "agent"
   fi
 
   link_dir "skills" "$OPENCODE_DIR" "skills"

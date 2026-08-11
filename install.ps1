@@ -142,11 +142,37 @@ function Link-Or-Copy-Dir {
 Link-Or-Copy-Dir "skills"
 Link-Or-Copy-Dir "commands"
 
+# agents/ se comparte con opencode. En Claude no se puede linkear el dir entero:
+# $ClaudeDir\agents tambien aloja agents de plugins.
+$agentsSrcDir = Join-Path $RepoDir "agents"
+if (Test-Path $agentsSrcDir) {
+    $claudeAgentsDir = Join-Path $ClaudeDir "agents"
+    if (-not (Test-Path $claudeAgentsDir)) {
+        New-Item -ItemType Directory -Path $claudeAgentsDir | Out-Null
+    }
+    Get-ChildItem -LiteralPath $agentsSrcDir -Filter "*.md" | ForEach-Object {
+        Link-Or-Copy "agents\$($_.Name)" $_.Name $claudeAgentsDir
+    }
+}
+
 # OpenCode
 $opencodeConfigSrc = Join-Path $RepoDir "opencode\opencode.jsonc"
 if (Test-Path $opencodeConfigSrc) {
     Link-Or-Copy "opencode\opencode.jsonc" "opencode.jsonc" $OpenCodeDir
 }
+$opencodeTuiSrc = Join-Path $RepoDir "opencode\tui.json"
+if (Test-Path $opencodeTuiSrc) {
+    Link-Or-Copy "opencode\tui.json" "tui.json" $OpenCodeDir
+}
+
+if (Test-Path (Join-Path $RepoDir "opencode\plugins")) {
+    Link-Or-Copy-Dir "opencode\plugins" "plugins" $OpenCodeDir
+}
+
+if (Test-Path (Join-Path $RepoDir "agents")) {
+    Link-Or-Copy-Dir "agents" "agent" $OpenCodeDir
+}
+
 Link-Or-Copy-Dir "skills" "skills" $OpenCodeDir
 Link-Or-Copy-Dir "commands" "commands" $OpenCodeDir
 
