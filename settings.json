@@ -110,24 +110,5 @@
       }
     }
   },
-  "agentPushNotifEnabled": true,
-  "user_preferences": {
-    "role": "Fullstack developer & entrepreneur",
-    "stack": [
-      "TypeScript",
-      "React",
-      "Next.js",
-      "Firebase",
-      "NestJS",
-      "Tailwind CSS"
-    ],
-    "communication": {
-      "tone": "direct",
-      "verbosity": "low"
-    },
-    "output": {
-      "structured_markdown": true,
-      "production_code": true
-    }
-  }
+  "agentPushNotifEnabled": true
 }
