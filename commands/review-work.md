@@ -14,7 +14,7 @@ Revisar como Staff Engineer: bugs, seguridad, arquitectura, mantenibilidad, test
 
 1. Leer el codigo/diff completo del alcance.
 2. Entender la intencion del cambio.
-3. Validar contra plan o criterios si existen.
+3. Validar contra plan o criterios si existen. Si no hay plan ni pipeline previo (cambio manual, hecho a mano o en otra herramienta/sesion), reconstruir la intencion desde el diff mismo antes de opinar, y marcarlo explicito en el output: "Sin plan de referencia — intencion inferida del diff".
 4. Priorizar hallazgos por impacto.
 5. No reescribir todo. Sugerir cambios concretos.
 
