@@ -114,6 +114,10 @@ Reglas:
 - Cada paso debe tener verificacion concreta.
 - Si el plan esta mal, reportar el problema antes de improvisar.
 
+Si el plan viene de un archivo `plans/*.md`: al terminar y verificar cada paso de la checklist, marcarlo `[x]` en ese archivo antes de pasar al siguiente — no esperar al cierre para actualizarlo. Esto deja el plan como estado real ejecutable: si la sesion se corta, retomar es leer el archivo y seguir desde el primer `[ ]` sin marcar, no releer la conversacion.
+
+Si el pedido acota el rango ("hasta el paso N", "solo pasos X-Y") o pide un modelo/agente distinto para un paso puntual, respetarlo y decirlo en el cierre — no asumir que hay que correr el plan entero.
+
 Orden sugerido:
 
 1. Tipos / contratos.
@@ -202,9 +206,14 @@ Reportar lo necesario para que el usuario pueda revisar el resultado. Mantenerlo
 ### Checks ejecutados
 - comando — resultado
 
+### Plan
+- Archivo: `plans/<slug>.md`
+- Progreso: N/M pasos completados
+- Detenido en: [paso, si no se corrio completo, y por que]
+
 ### Riesgos pendientes
 - ...
 
 ### Siguiente paso
-Ejecutar `/review-work` antes de `/create-pr`.
+Si el plan quedo incompleto: retomar con `/dev-pipeline plans/<slug>.md`. Si se completo: ejecutar `/review-work` antes de `/create-pr`.
 ```

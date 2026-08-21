@@ -5,7 +5,9 @@ argument-hint: [plan aprobado, path a plans/*.md, o input generado por /create-p
 
 Plan aprobado: `$ARGUMENTS`.
 
-Si el argumento es un path a un archivo (ej. `plans/nombre.md`), leerlo antes de continuar.
+Si el argumento es un path a un archivo (ej. `plans/nombre.md`), leerlo antes de continuar. Si ya tiene pasos marcados `[x]`, retomar desde el primer paso sin marcar.
+
+Se puede acotar la ejecucion en el mismo pedido: rango de pasos ("hasta el paso 3", "pasos 4 a 6") o modelo/agente puntual para un paso ("el paso 5 con \<modelo\>, porque necesita más razonamiento"). La skill `dev-pipeline` lo respeta y lo reporta en el cierre.
 
 ## Regla critica
 
@@ -51,5 +53,6 @@ Delegar a la skill `dev-pipeline`.
 ### Cierre
 - Archivos modificados
 - Checks ejecutados
+- Progreso del plan (N/M pasos) y donde quedo si no se corrio completo
 - Riesgos pendientes
 - Recomendacion de review
