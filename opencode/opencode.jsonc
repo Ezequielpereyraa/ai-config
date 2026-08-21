@@ -1,6 +1,8 @@
 {
   "$schema": "https://opencode.ai/config.json",
   "instructions": [
+    "{env:HOME}/ia-config/CORE.md",
+    "{env:HOME}/ia-config/WORKFLOW.md",
     "{env:USERPROFILE}/ai-config/CORE.md",
     "{env:USERPROFILE}/ai-config/WORKFLOW.md"
   ],
@@ -20,6 +22,5 @@
       "coverage/**",
       ".git/**"
     ]
-  },
-  "plugin": ["@warp-dot-dev/opencode-warp"]
+  }
 }

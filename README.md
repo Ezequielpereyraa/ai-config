@@ -81,6 +81,24 @@ Los comandos fueron ajustados para tener salida compacta por defecto y modo comp
 
 Las skills se usan como contexto puntual, no como reglas globales.
 
+### Skills de mattpocock/skills
+
+Copiadas (no instaladas como plugin) desde [`mattpocock/skills`](https://github.com/mattpocock/skills),
+carpetas `engineering/` y `productivity/`. Se editan y versionan aca como cualquier otra skill.
+
+| Grupo | Skills |
+|---|---|
+| Alineacion | `grilling`, `grill-me`, `grill-with-docs`, `wait-what`, `to-questionnaire` |
+| Spec y tickets | `to-spec`, `to-tickets`, `triage`, `implement` |
+| Ingenieria | `tdd`, `diagnosing-bugs`, `codebase-design`, `improve-codebase-architecture`, `prototype`, `research`, `resolving-merge-conflicts`, `wizard`, `wayfinder` |
+| Docs y contexto | `domain-modeling`, `writing-for-agents`, `handoff`, `teach`, `ask-matt` |
+| Setup | `setup-matt-pocock-skills` (correr una vez por repo) |
+
+No se copio `code-review`: choca con el `/code-review` nativo de Claude Code y `commands/review-work.md`
+ya cubre ese rol.
+
+Para actualizarlas: `npx skills@latest add mattpocock/skills`, o copiar a mano desde el repo upstream.
+
 ## Instalacion
 
 Requiere tener instalada la herramienta que vayas a usar: Claude Code, OpenCode o Codex.
@@ -130,6 +148,7 @@ Reiniciar las herramientas abiertas despues de instalar para que carguen la conf
 | `~/.config/opencode` | `opencode.jsonc`, `commands/`, `skills/` |
 | `~/.codex` | `AGENTS.md` |
 | `~/.codex/rules` | `default.rules` |
+| `~/.codex/skills` | cada skill de `skills/` por separado (no se linkea el dir entero: ahi vive `.system/`) |
 
 ## Mantenimiento
 

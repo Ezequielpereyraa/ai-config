@@ -33,24 +33,18 @@ MCP_CACHE_TTL=120  # 2 minutes
 # Read JSON from stdin
 input=$(cat)
 
-# Parse fields via node (jq isn't installed on this machine; node always is)
-# ponytail: node instead of jq — reuses an already-installed dependency
-FIELDS=$(printf '%s' "$input" | node -e '
-let data = "";
-process.stdin.on("data", c => data += c);
-process.stdin.on("end", () => {
-  let j = {};
-  try { j = JSON.parse(data); } catch (e) {}
-  const out = [
-    j.model?.display_name ?? "Claude",
-    j.workspace?.current_dir ?? "~",
-    j.context_window?.used_percentage ?? "",
-    j.cost?.total_cost_usd ?? 0,
-    j.cost?.total_duration_ms ?? 0,
-  ];
-  process.stdout.write(out.join("\t"));
-});
-')
+# Parse fields via jq (system package, siempre en PATH — a diferencia de node
+# vía nvm, que no está disponible cuando Claude Code invoca este script fuera
+# de una shell interactiva)
+FIELDS=$(printf '%s' "$input" | jq -r '
+  [
+    (.model.display_name // "Claude"),
+    (.workspace.current_dir // "~"),
+    (.context_window.used_percentage // ""),
+    (.cost.total_cost_usd // 0),
+    (.cost.total_duration_ms // 0)
+  ] | @tsv
+' 2>/dev/null)
 IFS=$'\t' read -r MODEL DIR CTX_PERCENT_RAW COST_USD DURATION_MS <<< "$FIELDS"
 
 # Context window — pre-calculated field from Claude Code
@@ -81,15 +75,8 @@ get_mcp_servers() {
   fi
 
   local SERVERS
-  SERVERS=$(node -e '
-    const fs = require("fs");
-    const os = require("os");
-    try {
-      const cfg = JSON.parse(fs.readFileSync(os.homedir() + "/.claude.json", "utf8"));
-      const servers = cfg.projects?.[process.argv[1]]?.mcpServers ?? {};
-      process.stdout.write(Object.keys(servers).join(","));
-    } catch (e) {}
-  ' "$DIR" 2>/dev/null)
+  SERVERS=$(jq -r --arg dir "$DIR" '.projects[$dir].mcpServers // {} | keys | join(",")' \
+    "$HOME/.claude.json" 2>/dev/null)
 
   echo "$SERVERS" > "$MCP_CACHE_FILE"
   echo "$SERVERS"

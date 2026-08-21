@@ -10,6 +10,7 @@ $ClaudeDir = Join-Path $env:USERPROFILE ".claude"
 $OpenCodeDir = Join-Path $env:USERPROFILE ".config\opencode"
 $CodexDir = Join-Path $env:USERPROFILE ".codex"
 $CodexRulesDir = Join-Path $env:USERPROFILE ".codex\rules"
+$CodexSkillsDir = Join-Path $env:USERPROFILE ".codex\skills"
 $NvimParentDir = $env:LOCALAPPDATA
 
 Write-Host "→ ai-config install desde: $RepoDir"
@@ -17,6 +18,7 @@ Write-Host "→ Claude target: $ClaudeDir"
 Write-Host "→ OpenCode target: $OpenCodeDir"
 Write-Host "→ Codex target: $CodexDir"
 Write-Host "→ Codex rules target: $CodexRulesDir"
+Write-Host "→ Codex skills target: $CodexSkillsDir"
 Write-Host "→ Neovim target: $NvimParentDir\nvim"
 Write-Host ""
 
@@ -34,6 +36,10 @@ if (-not (Test-Path $CodexDir)) {
 
 if (-not (Test-Path $CodexRulesDir)) {
     New-Item -ItemType Directory -Path $CodexRulesDir | Out-Null
+}
+
+if (-not (Test-Path $CodexSkillsDir)) {
+    New-Item -ItemType Directory -Path $CodexSkillsDir | Out-Null
 }
 
 function Remove-Stale-Symlink-Backups {
@@ -185,6 +191,15 @@ if (Test-Path $codexAgentsSrc) {
 $codexRulesSrc = Join-Path $RepoDir "codex\rules\default.rules"
 if (Test-Path $codexRulesSrc) {
     Link-Or-Copy "codex\rules\default.rules" "default.rules" $CodexRulesDir
+}
+
+# skills/ se comparte con claude y opencode. En Codex no se puede linkear el dir
+# entero: $CodexSkillsDir tambien aloja los skills de sistema (.system).
+$skillsSrcDir = Join-Path $RepoDir "skills"
+if (Test-Path $skillsSrcDir) {
+    Get-ChildItem -LiteralPath $skillsSrcDir -Directory | ForEach-Object {
+        Link-Or-Copy-Dir "skills\$($_.Name)" $_.Name $CodexSkillsDir
+    }
 }
 
 # Neovim

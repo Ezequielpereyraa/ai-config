@@ -9,6 +9,7 @@ CLAUDE_DIR="$HOME/.claude"
 OPENCODE_DIR="$HOME/.config/opencode"
 CODEX_DIR="$HOME/.codex"
 CODEX_RULES_DIR="$HOME/.codex/rules"
+CODEX_SKILLS_DIR="$HOME/.codex/skills"
 NVIM_PARENT_DIR="$HOME/.config"
 TARGET="${1:-all}"
 
@@ -17,6 +18,7 @@ echo "→ Claude target: $CLAUDE_DIR"
 echo "→ OpenCode target: $OPENCODE_DIR"
 echo "→ Codex target: $CODEX_DIR"
 echo "→ Codex rules target: $CODEX_RULES_DIR"
+echo "→ Codex skills target: $CODEX_SKILLS_DIR"
 echo "→ Neovim target: $NVIM_PARENT_DIR/nvim"
 echo ""
 
@@ -106,6 +108,16 @@ install_codex() {
 
   if [ -f "$REPO_DIR/codex/rules/default.rules" ]; then
     link "codex/rules/default.rules" "$CODEX_RULES_DIR" "default.rules"
+  fi
+
+  # skills/ se comparte con claude y opencode. En Codex no se puede linkear el
+  # dir entero: $CODEX_SKILLS_DIR tambien aloja los skills de sistema (.system).
+  if [ -d "$REPO_DIR/skills" ]; then
+    mkdir -p "$CODEX_SKILLS_DIR"
+    for d in "$REPO_DIR"/skills/*/; do
+      [ -d "$d" ] || continue
+      link "skills/$(basename "$d")" "$CODEX_SKILLS_DIR" "$(basename "$d")"
+    done
   fi
 }
 

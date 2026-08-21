@@ -55,7 +55,7 @@ Default mapping:
 - Next.js: `nextjs`
 - NestJS: `nestjs`
 - Tailwind CSS: `tailwind-4`
-- UI / UX: `ui-design`
+- UI / UX: `impeccable`
 - Frontend architecture / FSD: `feature-slice`
 - AI-generated code cleanup: `deslop`
 - Design system initialization: `design-init`

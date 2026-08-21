@@ -94,20 +94,13 @@
   },
   "enabledPlugins": {
     "ponytail@ponytail": true,
-    "warp@claude-code-warp": true,
-    "mattpocock-skills@mattpocock": true
+    "vercel@claude-plugins-official": true
   },
   "extraKnownMarketplaces": {
     "ponytail": {
       "source": {
         "source": "github",
         "repo": "DietrichGebert/ponytail"
-      }
-    },
-    "claude-code-warp": {
-      "source": {
-        "source": "github",
-        "repo": "warpdotdev/claude-code-warp"
       }
     },
     "mattpocock": {
@@ -117,6 +110,7 @@
       }
     }
   },
+  "agentPushNotifEnabled": true,
   "user_preferences": {
     "role": "Fullstack developer & entrepreneur",
     "stack": [
@@ -135,122 +129,5 @@
       "structured_markdown": true,
       "production_code": true
     }
-  },
-  "model": "opus",
-  "hooks": {
-    "UserPromptSubmit": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "if [ -f 'C:/Users/aylen/.orca/agent-hooks/claude-hook.cmd' ]; then 'C:/Users/aylen/.orca/agent-hooks/claude-hook.cmd'; else { command -p cat 2>/dev/null || cat; } >/dev/null 2>&1 || :; fi",
-            "timeout": 10
-          }
-        ]
-      }
-    ],
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "if [ -f 'C:/Users/aylen/.orca/agent-hooks/claude-hook.cmd' ]; then 'C:/Users/aylen/.orca/agent-hooks/claude-hook.cmd'; else { command -p cat 2>/dev/null || cat; } >/dev/null 2>&1 || :; fi",
-            "timeout": 10
-          }
-        ]
-      }
-    ],
-    "StopFailure": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "if [ -f 'C:/Users/aylen/.orca/agent-hooks/claude-hook.cmd' ]; then 'C:/Users/aylen/.orca/agent-hooks/claude-hook.cmd'; else { command -p cat 2>/dev/null || cat; } >/dev/null 2>&1 || :; fi",
-            "timeout": 10
-          }
-        ]
-      }
-    ],
-    "SubagentStart": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "if [ -f 'C:/Users/aylen/.orca/agent-hooks/claude-hook.cmd' ]; then 'C:/Users/aylen/.orca/agent-hooks/claude-hook.cmd'; else { command -p cat 2>/dev/null || cat; } >/dev/null 2>&1 || :; fi",
-            "timeout": 10
-          }
-        ]
-      }
-    ],
-    "SubagentStop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "if [ -f 'C:/Users/aylen/.orca/agent-hooks/claude-hook.cmd' ]; then 'C:/Users/aylen/.orca/agent-hooks/claude-hook.cmd'; else { command -p cat 2>/dev/null || cat; } >/dev/null 2>&1 || :; fi",
-            "timeout": 10
-          }
-        ]
-      }
-    ],
-    "TeammateIdle": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "if [ -f 'C:/Users/aylen/.orca/agent-hooks/claude-hook.cmd' ]; then 'C:/Users/aylen/.orca/agent-hooks/claude-hook.cmd'; else { command -p cat 2>/dev/null || cat; } >/dev/null 2>&1 || :; fi",
-            "timeout": 10
-          }
-        ]
-      }
-    ],
-    "PreToolUse": [
-      {
-        "matcher": "*",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "if [ -f 'C:/Users/aylen/.orca/agent-hooks/claude-hook.cmd' ]; then 'C:/Users/aylen/.orca/agent-hooks/claude-hook.cmd'; else { command -p cat 2>/dev/null || cat; } >/dev/null 2>&1 || :; fi",
-            "timeout": 10
-          }
-        ]
-      }
-    ],
-    "PostToolUse": [
-      {
-        "matcher": "*",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "if [ -f 'C:/Users/aylen/.orca/agent-hooks/claude-hook.cmd' ]; then 'C:/Users/aylen/.orca/agent-hooks/claude-hook.cmd'; else { command -p cat 2>/dev/null || cat; } >/dev/null 2>&1 || :; fi",
-            "timeout": 10
-          }
-        ]
-      }
-    ],
-    "PostToolUseFailure": [
-      {
-        "matcher": "*",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "if [ -f 'C:/Users/aylen/.orca/agent-hooks/claude-hook.cmd' ]; then 'C:/Users/aylen/.orca/agent-hooks/claude-hook.cmd'; else { command -p cat 2>/dev/null || cat; } >/dev/null 2>&1 || :; fi",
-            "timeout": 10
-          }
-        ]
-      }
-    ],
-    "PermissionRequest": [
-      {
-        "matcher": "*",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "if [ -f 'C:/Users/aylen/.orca/agent-hooks/claude-hook.cmd' ]; then 'C:/Users/aylen/.orca/agent-hooks/claude-hook.cmd'; else { command -p cat 2>/dev/null || cat; } >/dev/null 2>&1 || :; fi",
-            "timeout": 10
-          }
-        ]
-      }
-    ]
   }
 }
