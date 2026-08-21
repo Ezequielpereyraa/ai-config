@@ -73,7 +73,7 @@ Los comandos fueron ajustados para tener salida compacta por defecto y modo comp
 | `nextjs` | Next.js App Router, RSC, data fetching, Server Actions. |
 | `nestjs` | NestJS modules, controllers, services, guards, DTOs. |
 | `tailwind-4` | Tailwind CSS 4, `cn()`, tokens y clases. |
-| `ui-design` | UI/UX, responsive, layout, color, motion y performance visual. |
+| `impeccable` | UI/UX, responsive, layout, color, motion y performance visual. |
 | `feature-slice` | FSD solo para reestructuras frontend grandes o acoplamiento real. |
 | `design-init` | Generar `DESIGN.md` desde tokens existentes. |
 | `deslop` | Limpiar codigo AI-generated o inconsistente. |
@@ -88,14 +88,17 @@ carpetas `engineering/` y `productivity/`. Se editan y versionan aca como cualqu
 
 | Grupo | Skills |
 |---|---|
-| Alineacion | `grilling`, `grill-me`, `grill-with-docs`, `wait-what`, `to-questionnaire` |
+| Alineacion | `grilling`, `grill-with-docs`, `wait-what`, `to-questionnaire` |
 | Spec y tickets | `to-spec`, `to-tickets`, `triage`, `implement` |
-| Ingenieria | `tdd`, `diagnosing-bugs`, `codebase-design`, `improve-codebase-architecture`, `prototype`, `research`, `resolving-merge-conflicts`, `wizard`, `wayfinder` |
+| Ingenieria | `tdd`, `codebase-design`, `improve-codebase-architecture`, `prototype`, `research`, `resolving-merge-conflicts`, `wizard`, `wayfinder` |
 | Docs y contexto | `domain-modeling`, `writing-for-agents`, `handoff`, `teach`, `ask-matt` |
 | Setup | `setup-matt-pocock-skills` (correr una vez por repo) |
 
 No se copio `code-review`: choca con el `/code-review` nativo de Claude Code y `commands/review-work.md`
 ya cubre ese rol.
+
+Se eliminaron `grill-me` (duplicaba `grilling` sin agregar nada propio) y `diagnosing-bugs`
+(duplicaba `commands/debug-root-cause.md`).
 
 Para actualizarlas: `npx skills@latest add mattpocock/skills`, o copiar a mano desde el repo upstream.
 

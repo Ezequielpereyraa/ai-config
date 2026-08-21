@@ -2,10 +2,10 @@
 
 This is the global Codex adapter. It is not the source of truth.
 
-Source of truth:
+Source of truth — check whichever of these exists on this machine, in order:
 
-- `C:\Users\Eze\ai-config\CORE.md`
-- `C:\Users\Eze\ai-config\WORKFLOW.md`
+- Linux/Mac: `~/ia-config/CORE.md` and `~/ia-config/WORKFLOW.md`
+- Windows: `C:\Users\Eze\ai-config\CORE.md` and `C:\Users\Eze\ai-config\WORKFLOW.md`
 
 When those files are accessible, follow them as the primary behavior and workflow guidance.
 

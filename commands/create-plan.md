@@ -32,6 +32,11 @@ Usar para cambios acotados con solucion clara:
 ### Decision aprobada
 [Que opcion se eligio]
 
+### Scope
+- Goal: [que problema resuelve esto, en una linea]
+- In scope: [lo que este plan cubre]
+- Out of scope: [lo que NO cubre, explicito — no "lo demas"]
+
 ### Plan incremental
 
 1. [ ] Paso — archivos — verificacion concreta
@@ -55,6 +60,11 @@ Usar solo si hay varias capas, contratos, datos, migracion o riesgo alto.
 
 ### Decision aprobada
 [Que opcion se eligio y por que]
+
+### Scope
+- Goal: [que problema resuelve esto, en una linea]
+- In scope: [lo que este plan cubre]
+- Out of scope: [lo que NO cubre, explicito — no "lo demas"]
 
 ### Diseño tecnico
 - Entrada:

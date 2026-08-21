@@ -114,6 +114,8 @@ Reglas:
 - Cada paso debe tener verificacion concreta.
 - Si el plan esta mal, reportar el problema antes de improvisar.
 
+Limite de expansion: si durante la implementacion aparecen cambios fuera del "Out of scope" del plan, o la cantidad de archivos tocados crece de forma notoria respecto a "Archivos afectados", frenar la implementacion y actualizar el plan (marcando el nuevo alcance) antes de seguir. No hay un numero fijo — la señal es que el diff ya no se explica solo con el plan original.
+
 Si el plan viene de un archivo `plans/*.md`: al terminar y verificar cada paso de la checklist, marcarlo `[x]` en ese archivo antes de pasar al siguiente — no esperar al cierre para actualizarlo. Esto deja el plan como estado real ejecutable: si la sesion se corta, retomar es leer el archivo y seguir desde el primer `[ ]` sin marcar, no releer la conversacion.
 
 Si el pedido acota el rango ("hasta el paso N", "solo pasos X-Y") o pide un modelo/agente distinto para un paso puntual, respetarlo y decirlo en el cierre — no asumir que hay que correr el plan entero.

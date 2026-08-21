@@ -62,7 +62,7 @@ Objetivo: convertir `ai-config` en una configuracion multi-tool clara, liviana y
 | Ya hay solucion elegida        | `/create-plan`                                         | pasos ejecutables, validacion, checkpoints           |
 | Ya hay plan aprobado           | `/dev-pipeline`                                        | implementacion acotada + verificacion                |
 | Refactor                       | `refactor-plan` / `safe-refactor` si existe en el repo | preservar comportamiento, cambios incrementales      |
-| UI                             | `ui-design` + stack skill si aplica                    | responsive, visual consistente, sin AI slop          |
+| UI                             | `impeccable` + stack skill si aplica                   | responsive, visual consistente, sin AI slop          |
 | Codigo sucio o generado por IA | `deslop`                                               | limpieza minima sin cambiar comportamiento           |
 | Antes de cerrar cambios        | `/review-work`                                         | findings primero, riesgos y gaps                     |
 

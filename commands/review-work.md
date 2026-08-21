@@ -14,7 +14,7 @@ Revisar como Staff Engineer: bugs, seguridad, arquitectura, mantenibilidad, test
 
 1. Leer el codigo/diff completo del alcance.
 2. Entender la intencion del cambio.
-3. Validar contra plan o criterios si existen. Si no hay plan ni pipeline previo (cambio manual, hecho a mano o en otra herramienta/sesion), reconstruir la intencion desde el diff mismo antes de opinar, y marcarlo explicito en el output: "Sin plan de referencia — intencion inferida del diff".
+3. Validar contra plan o criterios si existen. Si no hay plan ni pipeline previo (cambio manual, hecho a mano o en otra herramienta/sesion), reconstruir la intencion desde el diff mismo antes de opinar, y marcarlo explicito en el output: "Sin plan de referencia — intencion inferida del diff". Si hay plan con "Out of scope"/"Archivos afectados" declarados, comparar el diff real contra eso — scope creep (archivos tocados que el plan no menciona, cambios fuera de lo declarado "out of scope") es un finding en si mismo, no un detalle menor.
 4. Priorizar hallazgos por impacto.
 5. No reescribir todo. Sugerir cambios concretos.
 
@@ -60,12 +60,19 @@ Si no hay bloqueantes: "Ninguno".
 - Boundaries:
 - Escalabilidad:
 - Testabilidad:
+- Decisiones arquitectonicas no documentadas: [alguna decision de peso que el diff toma sin dejar rastro en plan/ADR/comentario]
+
+### Scope
+- Scope creep: [cambios fuera de lo que el plan declaraba — archivos no mencionados, "out of scope" tocado]
+- Cambios colaterales: [efectos en codigo que el plan no tocaba, aunque sean "mejoras" de paso]
 
 ### Bugs y edge cases
 - ...
 
 ### Complejidad / mantenibilidad
-- ...
+- Abstracciones innecesarias:
+- Duplicacion:
+- Archivos demasiado grandes para su responsabilidad:
 
 ### Tests faltantes
 - ...
