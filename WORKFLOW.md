@@ -12,6 +12,12 @@ It is not a replacement for `CORE.md`. `CORE.md` is always-on behavior. This fil
 - Keep global instructions light and load detail only when useful.
 - Improve response quality independently of the current model or CLI.
 
+## Session Discipline
+
+One task per session. When the task changes, start a new session — do not keep working a different, unrelated task inside the same conversation just because it is open.
+
+Before closing or pausing a task that is not finished, run `/handoff` first, so the next session picks it up from a written state instead of from memory. Wanting to start something unrelated to the last handover mid-session is the signal that tasks are about to mix — stop and write the handoff for the current one before switching.
+
 ## First Decision
 
 Before choosing a command or skill, classify the task:
