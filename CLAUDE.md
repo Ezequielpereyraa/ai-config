@@ -33,6 +33,8 @@ Improve decision quality before code is written, but use the smallest process th
 
 Use slash commands only when they match the task size and risk from `WORKFLOW.md`.
 
+Routing is the assistant's job, not the user's. When a request looks `medium`+ and no plan/analysis exists yet, propose the right command before implementing — do not wait for the user to type it, and do not silently skip straight to code.
+
 - `/debug-root-cause`: bugs, stack traces, failing builds, unexpected behavior.
 - `/analyze-feature`: medium/large/risky features or refactors before planning.
 - `/create-plan`: after a solution is chosen and implementation needs a plan.

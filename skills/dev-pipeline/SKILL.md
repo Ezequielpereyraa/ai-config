@@ -75,7 +75,7 @@ Leer las skills necesarias segun stack detectado:
 - Tailwind: `tailwind-4`
 - NestJS: `nestjs`
 - Tests: use the project's configured test tools
-- UI: `ui-design`
+- UI: `impeccable`
 
 No duplicar reglas de esas skills dentro del plan. Referenciarlas y aplicarlas.
 

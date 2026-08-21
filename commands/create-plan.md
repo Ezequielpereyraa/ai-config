@@ -18,7 +18,8 @@ Si el cambio es `small` segun `WORKFLOW.md`, no generes un plan largo. Decí que
 3. Definir pasos incrementales verificables.
 4. Separar decisiones no negociables de detalles de implementacion.
 5. Declarar riesgos residuales y tests esperados.
-6. Parar y pedir aprobacion.
+6. Guardar el plan en `plans/<slug>.md` en la raiz del repo del proyecto (crear la carpeta si no existe). `<slug>` es kebab-case del ticket/feature; si ya existe, sufijo numerico.
+7. Parar y pedir aprobacion.
 
 ## Output
 
@@ -41,6 +42,9 @@ Usar para cambios acotados con solucion clara:
 - Comandos/checks:
 - QA manual:
 - Riesgos:
+
+### Plan guardado en
+`plans/<slug>.md`
 
 ### Proximo paso
 Esperar aprobacion explicita antes de ejecutar `/dev-pipeline`, salvo que el usuario haya pedido implementar ahora.
@@ -97,6 +101,9 @@ Plan aprobado:
 Checks esperados:
 Riesgos conocidos:
 ```
+
+### Plan guardado en
+`plans/<slug>.md`
 
 ### Proximo paso
 Esperar aprobacion explicita antes de ejecutar `/dev-pipeline`.

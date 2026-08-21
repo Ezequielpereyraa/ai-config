@@ -1,9 +1,11 @@
 ---
 description: Ejecuta un plan aprobado. Motor de implementacion, no primer paso de analisis.
-argument-hint: [plan aprobado o input generado por /create-plan]
+argument-hint: [plan aprobado, path a plans/*.md, o input generado por /create-plan]
 ---
 
 Plan aprobado: `$ARGUMENTS`.
+
+Si el argumento es un path a un archivo (ej. `plans/nombre.md`), leerlo antes de continuar.
 
 ## Regla critica
 
