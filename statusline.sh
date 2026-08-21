@@ -42,10 +42,13 @@ FIELDS=$(printf '%s' "$input" | jq -r '
     (.workspace.current_dir // "~"),
     (.context_window.used_percentage // ""),
     (.cost.total_cost_usd // 0),
-    (.cost.total_duration_ms // 0)
+    (.cost.total_duration_ms // 0),
+    (.rate_limits.five_hour.used_percentage // ""),
+    (.rate_limits.seven_day.used_percentage // ""),
+    (.rate_limits.seven_day.resets_at // "")
   ] | @tsv
 ' 2>/dev/null)
-IFS=$'\t' read -r MODEL DIR CTX_PERCENT_RAW COST_USD DURATION_MS <<< "$FIELDS"
+IFS=$'\t' read -r MODEL DIR CTX_PERCENT_RAW COST_USD DURATION_MS RL_5H RL_7D RL_7D_RESETS <<< "$FIELDS"
 
 # Context window — pre-calculated field from Claude Code
 if [ -n "$CTX_PERCENT_RAW" ]; then
@@ -63,6 +66,27 @@ DURATION_FMT=$(awk -v ms="$DURATION_MS" 'BEGIN {
   if (h > 0) printf "%dh%dm", h, m % 60
   else printf "%dm", m
 }')
+
+# Rate limits (5h/7d) — cuenta atras del reset semanal, solo si hay dato
+RL_7D_RESET_FMT=""
+if [ -n "$RL_7D_RESETS" ]; then
+  SECS_LEFT=$(( RL_7D_RESETS - $(date +%s) ))
+  if [ "$SECS_LEFT" -gt 0 ]; then
+    D_LEFT=$((SECS_LEFT / 86400))
+    H_LEFT=$(((SECS_LEFT % 86400) / 3600))
+    if [ "$D_LEFT" -gt 0 ]; then
+      RL_7D_RESET_FMT="${D_LEFT}d${H_LEFT}h"
+    else
+      RL_7D_RESET_FMT="${H_LEFT}h"
+    fi
+  else
+    RL_7D_RESET_FMT="ya"
+  fi
+fi
+
+RL_WORST=0
+[ -n "$RL_5H" ] && [ "$RL_5H" -gt "$RL_WORST" ] 2>/dev/null && RL_WORST=$RL_5H
+[ -n "$RL_7D" ] && [ "$RL_7D" -gt "$RL_WORST" ] 2>/dev/null && RL_WORST=$RL_7D
 
 # Function to get MCP servers from config
 get_mcp_servers() {
@@ -125,6 +149,14 @@ fi
 GIT_RGB="$SUCCESS_RGB"
 [ -n "$GIT_DIRTY" ] && GIT_RGB="$ACCENT_RGB"
 
+if [ "$RL_WORST" -ge 80 ]; then
+  RL_RGB="$ERROR_RGB"
+elif [ "$RL_WORST" -ge 50 ]; then
+  RL_RGB="$ACCENT_RGB"
+else
+  RL_RGB="$SUCCESS_RGB"
+fi
+
 # Build powerline: cap -> model -> dir -> [git] -> context+cost -> [mcp] -> cap
 LINE="${NC}$(rgb_fg "$PURPLE_RGB")${CAP_L}$(rgb_bg "$PURPLE_RGB")${BASE}${BOLD} ${MODEL_ICON} ${MODEL} "
 PREV_RGB="$PURPLE_RGB"
@@ -139,6 +171,13 @@ fi
 
 LINE+="$(rgb_fg "$PREV_RGB")$(rgb_bg "$CTX_RGB")${SEP}${BASE}${BOLD} ${BAR} ${CTX_PERCENT}% ${COST_FMT} ${DURATION_FMT} "
 PREV_RGB="$CTX_RGB"
+
+if [ -n "$RL_5H" ] || [ -n "$RL_7D" ]; then
+  RL_TXT="⏱ 5h ${RL_5H:-?}% · 7d ${RL_7D:-?}%"
+  [ -n "$RL_7D_RESET_FMT" ] && RL_TXT+=" (${RL_7D_RESET_FMT})"
+  LINE+="$(rgb_fg "$PREV_RGB")$(rgb_bg "$RL_RGB")${SEP}${BASE}${BOLD} ${RL_TXT} "
+  PREV_RGB="$RL_RGB"
+fi
 
 if [ "$MCP_COUNT" -gt 0 ]; then
   LINE+="$(rgb_fg "$PREV_RGB")$(rgb_bg "$SECONDARY_RGB")${SEP}${BASE}${BOLD} 󰐻 ${MCP_COUNT} "
