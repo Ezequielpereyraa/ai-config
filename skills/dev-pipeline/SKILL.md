@@ -140,9 +140,9 @@ Luego, ejecutar el conjunto minimo de checks que cubra el riesgo real:
 
 #### Build local
 
-- **No ejecutar `build` local por defecto.** El build de CI/Vercel es la validacion normal de produccion.
-- No inferir que `pnpm build`, `npm run build` o equivalente es obligatorio porque aparece en docs del repositorio, un checklist generico o un plan anterior.
-- Ejecutarlo unicamente si el usuario lo pide explicitamente en el pedido actual o si CI/Vercel no esta disponible y el usuario aprueba el costo antes de correrlo.
+- **Nunca ejecutar `build` local, sin excepciones.** El build de CI/Vercel es la validacion normal de produccion. Los tests dirigidos + typecheck son el check por defecto de esta fase.
+- No inferir que `pnpm build`, `npm run build` o equivalente es obligatorio porque aparece en docs del repositorio, un checklist generico, un plan anterior, o porque CI/Vercel no esta disponible.
+- Ejecutarlo unicamente si el usuario lo pide explicitamente, con esas palabras, en el pedido actual.
 - Si no se corre, reportar `Build local: omitido; se valida en CI/Vercel`, sin tratarlo como gap bloqueante.
 
 #### React Doctor
